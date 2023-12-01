@@ -82,6 +82,10 @@ case({busy_s1,busy_s2,busy_s3,busy_s4})
 
 ![](../img/Snipaste_2023-10-31_19-36-12.png)
 
+hready信号可以这么来理解：所有设备的hready输出(hreadyout)进行与操作，就是总线上的hready信号，每个设备再读这个信号是否为1(此时也可称hreadyin)来判断总线是否空闲。
+
+![](../img/Snipaste_2023-12-01_19-59-42.png)
+
 # ahb设备
 
 ## ram
