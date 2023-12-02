@@ -1,0 +1,13 @@
+-d C:\Users\qwertym\Desktop\gwe902\impl\gwsynthesis\gwe902_test.vg
+-p GW2A-55C-PBGA484-8
+-pn GW2A-LV55PG484C8/I7
+-cst C:\Users\qwertym\Desktop\gwe902\gch_e902_combat.cst
+-cfg C:\Users\qwertym\Desktop\gwe902\impl\pnr\device.cfg
+-sdc C:\Users\qwertym\Desktop\gwe902\gch_e902.sdc
+-bit
+-tr
+-ph
+-timing
+-cst_error
+-correct_hold 1
+-route_maxfan 23

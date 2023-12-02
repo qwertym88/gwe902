@@ -15,13 +15,13 @@
 #-------------------------------------------------------------------
 # the compiler toolset setting
 
-TOOL_EXTENSION := /home/qwertym/桌面/fpga_tools/gcc-elf-newlib-x86_64/bin
+TOOL_EXTENSION := C:/Users/qwertym/Desktop/fpga/gcc/bin
 
-CC      = ${TOOL_EXTENSION}/riscv64-unknown-elf-gcc
-AS      = ${TOOL_EXTENSION}/riscv64-unknown-elf-as
-LINK    = ${TOOL_EXTENSION}/riscv64-unknown-elf-ld
-OBJDUMP = ${TOOL_EXTENSION}/riscv64-unknown-elf-objdump
-OBJCOPY = ${TOOL_EXTENSION}/riscv64-unknown-elf-objcopy
+CC      = ${TOOL_EXTENSION}/riscv64-unknown-elf-gcc.exe
+AS      = ${TOOL_EXTENSION}/riscv64-unknown-elf-as.exe
+LINK    = ${TOOL_EXTENSION}/riscv64-unknown-elf-ld.exe
+OBJDUMP = ${TOOL_EXTENSION}/riscv64-unknown-elf-objdump.exe
+OBJCOPY = ${TOOL_EXTENSION}/riscv64-unknown-elf-objcopy.exe
 
 FILE:=fill_array
 
@@ -81,5 +81,5 @@ all : ${FILE}.hex ${FILE}.elf ${FILE}.bin ${FILE}.obj
 # clean some medium code and .pat
 .PHONY :clean 
 clean:
-	rm -rf *.o *.elf *.obj *.hex
+	del *.o *.elf *.obj *.hex
 

@@ -15,11 +15,11 @@ reg [1:0] mcu_rst_reg;
 always @(posedge sys_clk or negedge mcu_rst_signal)
 begin
  if (mcu_rst_signal == 1'b0) begin
-     mcu_rst_reg <= 2'b0; //异步复位
+    mcu_rst_reg <= 2'b0; //异步复位
  end    
  else begin
-     mcu_rst_reg[0] <= 1'b1;
-     mcu_rst_reg[1] <= mcu_rst_reg[0]; // 两个时钟周期后释放
+    mcu_rst_reg[0] <= 1'b1;
+    mcu_rst_reg[1] <= mcu_rst_reg[0]; // 两个时钟周期后释放
  end    
 end
 assign mcu_rstn = mcu_rst_reg[1]; // 使上电复位上升沿与clk同步
@@ -31,11 +31,11 @@ always @(posedge sys_clk or negedge mcu_rstn) begin
     cpu_rst_reg <= 2'b00;
   end 
   else begin
-    cpu_rst_reg[0] <= ~cpu_pad_soft_rst[0];
-    cpu_rst_reg[1] <= cpu_rst_reg[0] & ~cpu_pad_soft_rst[0];
+    cpu_rst_reg[0] <= cpu_pad_soft_rst[0];
+    cpu_rst_reg[1] <= cpu_rst_reg[0] & cpu_pad_soft_rst[0];
   end
 end
-assign cpu_rst = cpu_rst_reg[1]; // 即cpu_pad_soft_rst[0]=1两周期后，或上电复位信号mcu_rstn=0时处理器复位
+assign cpu_rst = ~cpu_rst_reg[1]; // 即cpu_pad_soft_rst[0]=1两周期后，或上电复位信号mcu_rstn=0时处理器复位
 
 // cpu_pad_soft_rst[1]发出系统复位请求，等待2周期执行
 reg [1:0] sys_rst_reg;
@@ -44,11 +44,11 @@ always @(posedge sys_clk or negedge mcu_rstn) begin
     sys_rst_reg <= 2'b00;
   end 
   else begin
-    sys_rst_reg[0] <= ~cpu_pad_soft_rst[0];
-    sys_rst_reg[1] <= sys_rst_reg[0] & ~cpu_pad_soft_rst[0];
+    sys_rst_reg[0] <= cpu_pad_soft_rst[1];
+    sys_rst_reg[1] <= sys_rst_reg[0] & cpu_pad_soft_rst[1];
   end
 end
-assign sys_rst = sys_rst_reg[1]; // 即cpu_pad_soft_rst[1]=1两周期后，或上电复位信号mcu_rstn=0时系统复位
+assign sys_rst = ~sys_rst_reg[1]; // 即cpu_pad_soft_rst[1]=1两周期后，或上电复位信号mcu_rstn=0时系统复位
 
 // 见集成手册p19
 assign pad_cpu_rst_b = cpu_rst & sys_rst;
