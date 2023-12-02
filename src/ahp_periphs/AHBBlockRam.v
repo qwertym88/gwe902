@@ -21,7 +21,7 @@ module AHBBlockRam #(
         output HRESP, // AHB response
         output [31:0] HRDATA // AHB read data bus
     );
-    parameter AWT = ((1<<(AWIDTH-2))-1); // index max value
+    localparam AWT = ((1<<(AWIDTH-2))-1); // index max value
     // --- Memory Array ---
     reg [7:0] BRAM0 [0:AWT];
     reg [7:0] BRAM1 [0:AWT];
@@ -70,14 +70,14 @@ module AHBBlockRam #(
         // do not use enable on read interface.
         haddrQ <= HADDR[AWIDTH-1:2];
     end
-`ifdef CM_SRAM_INIT
-    initial begin
-        $readmemh(“itcm3”, BRAM3);
-        $readmemh(“itcm2”, BRAM2);
-        $readmemh(“itcm1”, BRAM1);
-        $readmemh(“itcm0”, BRAM0);
-    end
-`endif
+// `ifdef CM_SRAM_INIT
+//     initial begin
+//         $readmemh(“itcm3”, BRAM3);
+//         $readmemh(“itcm2”, BRAM2);
+//         $readmemh(“itcm1”, BRAM1);
+//         $readmemh(“itcm0”, BRAM0);
+//     end
+// `endif
     // --- AHB Outputs ---
     assign HRESP = 1'b0; // OKAY
     assign HREADYOUT = 1'b1; // always ready

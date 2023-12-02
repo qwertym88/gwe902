@@ -1,6 +1,6 @@
 module mcu_reset (
     input wire mcu_rst_signal,
-    input wire cpu_pad_soft_rst,
+    input wire [1:0] cpu_pad_soft_rst,
     input wire sys_clk,
     output wire pad_cpu_rst_b,
     output wire pad_had_rst_b,
@@ -11,8 +11,8 @@ module mcu_reset (
 
 // ensure external power-on-reset is synchronized to HCLK,
 // Taken from page 28 of System-on-Chip Design with Arm Cortex-M processors
-reg mcu_rst_reg[1:0]
-always@(posedge clk or negedge mcu_rst_signal)
+reg [1:0] mcu_rst_reg;
+always @(posedge sys_clk or negedge mcu_rst_signal)
 begin
  if (mcu_rst_signal == 1'b0) begin
      mcu_rst_reg <= 2'b0; //异步复位
@@ -22,11 +22,11 @@ begin
      mcu_rst_reg[1] <= mcu_rst_reg[0]; // 两个时钟周期后释放
  end    
 end
-assign mcu_rstn = cpu_rst_req_reg[1]; // 使上电复位上升沿与clk同步
+assign mcu_rstn = mcu_rst_reg[1]; // 使上电复位上升沿与clk同步
 
 // cpu_pad_soft_rst[0]发出内核复位请求，等待2周期执行
 reg [1:0] cpu_rst_reg;
-always @(posedge cpu_clk or negedge mcu_rstn) begin
+always @(posedge sys_clk or negedge mcu_rstn) begin
   if (~mcu_rstn) begin
     cpu_rst_reg <= 2'b00;
   end 
@@ -55,7 +55,7 @@ assign pad_cpu_rst_b = cpu_rst & sys_rst;
 assign pad_had_rst_b = sys_rst;
 assign pad_had_jtg_trst_b = mcu_rstn;
 
-sys_resetn = sys_rst
+assign sys_resetn = sys_rst;
 
 
 // 另一种设计，和集成手册p19那张图一模一样的

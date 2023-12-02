@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module name="soc" Register="64" Alu="63" Lut="3">
+    <SubModule name="x_mcu_reset" Register="4" Lut="4"/>
+    <SubModule name="x_e902">
+        <SubModule name="x_cr_core_top">
+            <SubModule name="x_cr_core">
+                <SubModule name="x_cr_ifu_top">
+                    <SubModule name="x_ibusif" Register="36" Lut="319"/>
+                    <SubModule name="x_ibuf" Register="12" Alu="3" Lut="55">
+                        <SubModule name="x_ibuf_entry_0" Register="18" Lut="136"/>
+                        <SubModule name="x_ibuf_entry_1" Register="18" Lut="57"/>
+                        <SubModule name="x_ibuf_entry_2" Register="18" Lut="56"/>
+                        <SubModule name="x_ibuf_entry_3" Register="18" Lut="57"/>
+                        <SubModule name="x_ibuf_entry_4" Register="18" Lut="57"/>
+                        <SubModule name="x_ibuf_entry_5" Register="18" Lut="57"/>
+                    </SubModule>
+                    <SubModule name="x_ifctrl" Register="1" Lut="37"/>
+                </SubModule>
+                <SubModule name="x_cr_iu_top">
+                    <SubModule name="x_cr_iu_decd" Lut="207"/>
+                    <SubModule name="x_cr_iu_oper" Alu="8">
+                        <SubModule name="x_cr_iu_oper_gpr" Lut="17">
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_1" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_3" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_4" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_5" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_6" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_7" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_8" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_9" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_10" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_11" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_12" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_13" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_14" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_user_15" Register="32"/>
+                            <SubModule name="x_cr_iu_gated_clk_reg_machine_2" Register="32"/>
+                        </SubModule>
+                    </SubModule>
+                    <SubModule name="x_cr_iu_alu" Alu="64" Lut="1539"/>
+                    <SubModule name="x_cr_iu_mad" Register="39" Alu="5" Lut="1336"/>
+                    <SubModule name="x_cr_iu_branch" Alu="31" Lut="87"/>
+                    <SubModule name="x_cr_iu_retire" Register="6" Lut="78"/>
+                    <SubModule name="x_cr_iu_wb" Register="40" Alu="31" Lut="1878"/>
+                    <SubModule name="x_cr_iu_pcgen" Register="33" Lut="197"/>
+                    <SubModule name="x_cr_iu_vector" Register="4" Lut="15"/>
+                    <SubModule name="x_cr_iu_lockup" Register="3" Lut="16"/>
+                </SubModule>
+                <SubModule name="x_cr_lsu_top">
+                    <SubModule name="x_cr_lsu_dp" Register="37" Lut="450"/>
+                    <SubModule name="x_cr_lsu_ctrl" Register="1" Lut="6"/>
+                </SubModule>
+                <SubModule name="x_cr_cp0_top">
+                    <SubModule name="x_cr_cp0_iui" Lut="1168"/>
+                    <SubModule name="x_cr_cp0_oreg" Register="245" Alu="29" Lut="564"/>
+                    <SubModule name="x_cr_cp0_status" Register="56" Lut="187"/>
+                    <SubModule name="x_cr_cp0_lpmd" Register="4" Lut="21"/>
+                    <SubModule name="x_cr_cp0_srst" Register="2" Lut="7"/>
+                </SubModule>
+            </SubModule>
+            <SubModule name="x_cr_pmp_top">
+                <SubModule name="x_cr_pmp_regs" Register="304" Lut="42"/>
+                <SubModule name="x_cr_pmp_comp_hit_0" Alu="178" Lut="96"/>
+                <SubModule name="x_cr_pmp_comp_hit_1" Alu="178" Lut="98"/>
+                <SubModule name="x_cr_pmp_comp_hit_2" Alu="178" Lut="96"/>
+                <SubModule name="x_cr_pmp_comp_hit_3" Alu="178" Lut="100"/>
+                <SubModule name="x_cr_pmp_comp_hit_4" Alu="178" Lut="96"/>
+                <SubModule name="x_cr_pmp_comp_hit_5" Alu="178" Lut="102"/>
+                <SubModule name="x_cr_pmp_comp_hit_6" Alu="178" Lut="96"/>
+                <SubModule name="x_cr_pmp_comp_hit_7" Alu="178" Lut="98"/>
+            </SubModule>
+            <SubModule name="x_cr_bmu_top">
+                <SubModule name="x_cr_bmu_dbus_if" Register="4" Lut="52"/>
+                <SubModule name="x_cr_bmu_ibus_if" Register="3" Lut="39"/>
+            </SubModule>
+            <SubModule name="x_cr_sahbl_top">
+                <SubModule name="x_cr_ahbl_req_arb" Register="2" Lut="59"/>
+                <SubModule name="x_cr_ahbl_if" Register="4" Lut="8"/>
+            </SubModule>
+            <SubModule name="x_cr_iahbl_top" Lut="32">
+                <SubModule name="x_cr_ahbl_req_arb" Register="1" Lut="19"/>
+                <SubModule name="x_cr_ahbl_if" Register="2"/>
+            </SubModule>
+            <SubModule name="x_cr_sys_io" Register="67"/>
+        </SubModule>
+        <SubModule name="x_cr_had_top">
+            <SubModule name="x_cr_had_bkpta" Register="2" Alu="32" Lut="20"/>
+            <SubModule name="x_cr_had_bkptb" Register="2" Alu="32" Lut="16"/>
+            <SubModule name="x_cr_had_ctrl" Register="1" Lut="159"/>
+            <SubModule name="x_cr_had_ddc" Register="4" Lut="14"/>
+            <SubModule name="x_cr_had_regs" Register="353" Lut="203"/>
+            <SubModule name="x_cr_had_jtag2" Register="56" Lut="335">
+                <SubModule name="x_cr_had_sync_sm2_rst" Register="4"/>
+                <SubModule name="x_cr_had_sync_ir" Register="4"/>
+                <SubModule name="x_cr_had_sync_dr" Register="4"/>
+                <SubModule name="x_cr_had_sync_cap_dr" Register="4"/>
+                <SubModule name="x_cr_had_sync_cap_dr_mask" Register="3"/>
+            </SubModule>
+        </SubModule>
+        <SubModule name="x_cr_tcipif_top">
+            <SubModule name="x_cr_tcipif_dbus" Register="24" Lut="37"/>
+            <SubModule name="x_cr_tcipif_ibus" Register="1" Lut="1"/>
+            <SubModule name="x_cr_clic_top">
+                <SubModule name="x_cr_clic_arb" Lut="101">
+                    <SubModule name="x_cr_clic_arb_kernel">
+                        <SubModule name="x_cr_clic_num" Alu="64" Lut="660"/>
+                    </SubModule>
+                    <SubModule name="x_cr_clic_sel_level_all" Lut="549"/>
+                    <SubModule name="x_cr_clic_sel_id_vec" Lut="136"/>
+                </SubModule>
+                <SubModule name="x_cr_clic_ctrl" Register="33" Lut="203"/>
+                <SubModule name="INT_KID[3].x_cr_clic_kid" Register="9" Lut="24"/>
+                <SubModule name="INT_KID[7].x_cr_clic_kid" Register="9" Lut="11"/>
+                <SubModule name="INT_KID[11].x_cr_clic_kid" Register="8" Lut="9"/>
+                <SubModule name="INT_KID[12].x_cr_clic_kid" Register="8" Lut="10"/>
+                <SubModule name="INT_KID[16].x_cr_clic_kid" Register="8" Lut="10"/>
+                <SubModule name="INT_KID[17].x_cr_clic_kid" Register="8" Lut="9"/>
+                <SubModule name="INT_KID[18].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[19].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[20].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[21].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[22].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[23].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[24].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[25].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[26].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[27].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[28].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[29].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[30].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[31].x_cr_clic_kid" Register="8" Lut="8"/>
+                <SubModule name="INT_KID[32].x_cr_clic_kid" Register="8" Lut="11"/>
+                <SubModule name="INT_KID[33].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[34].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[35].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[36].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[37].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[38].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[39].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[40].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[41].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[42].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[43].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[44].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[45].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[46].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[47].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[48].x_cr_clic_kid" Register="8" Lut="9"/>
+                <SubModule name="INT_KID[49].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[50].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[51].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[52].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[53].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[54].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[55].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[56].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[57].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[58].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[59].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[60].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[61].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[62].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[63].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[64].x_cr_clic_kid" Register="8" Lut="10"/>
+                <SubModule name="INT_KID[65].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[66].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[67].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[68].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[69].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[70].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[71].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[72].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[73].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[74].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[75].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[76].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[77].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[78].x_cr_clic_kid" Register="8" Lut="7"/>
+                <SubModule name="INT_KID[79].x_cr_clic_kid" Register="8" Lut="7"/>
+            </SubModule>
+            <SubModule name="x_cr_clint_top">
+                <SubModule name="x_cr_clint_regs" Register="65" Alu="63" Lut="8"/>
+            </SubModule>
+        </SubModule>
+    </SubModule>
+    <SubModule name="x_cpu_mem">
+        <SubModule name="x_iahb_bram" Register="17" Lut="9" Bsram="16"/>
+    </SubModule>
+    <SubModule name="x_sysahb_periphs">
+        <SubModule name="x_sysahb_bram" Register="16" Lut="11" Bsram="8"/>
+        <SubModule name="x_ahb_defslave" Register="2" Lut="4"/>
+        <SubModule name="x_ahb_decoder" Lut="1"/>
+        <SubModule name="x_ahb_slavemux" Register="2" Lut="8"/>
+    </SubModule>
+</Module>

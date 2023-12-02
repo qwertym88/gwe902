@@ -1,0 +1,17 @@
+//Copyright (C)2014-2023 Gowin Semiconductor Corporation.
+//All rights reserved. 
+//File Title: Physical Constraints file
+//GOWIN Version: 1.9.9 Beta-3
+//Part Number: GW2A-LV55PG484C8/I7
+//Device: GW2A-55
+//Device Version: C
+//Created Time: Sun 09 03 09:39:12 2023
+
+IO_LOC "jtag_tms" V17;
+IO_PORT "jtag_tms" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "jtag_tclk" V16;
+IO_PORT "jtag_tclk" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "mcu_resetn" V14;
+IO_PORT "mcu_resetn" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "clk27m" AB12;
+IO_PORT "clk27m" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;

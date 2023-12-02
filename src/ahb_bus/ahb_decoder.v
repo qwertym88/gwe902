@@ -1,5 +1,5 @@
 module ahb_decoder(
-    input wire [31:1] HADDR,
+    input wire [31:0] HADDR,
     input wire EN,
     output wire HSEL0,
     output wire HSEL1
@@ -15,8 +15,8 @@ module ahb_decoder(
 // `define S1_BASE_END   32'h4fffffff
 
 
-assign HSEL0 = (biu_pad_haddr >= `S0_BASE_START) && (biu_pad_haddr <= `S0_BASE_END);
-// assign HSEL1 = (biu_pad_haddr >= `S1_BASE_START) && (biu_pad_haddr <= `S1_BASE_END);
+assign HSEL0 = (HADDR >= `S0_BASE_START) && (HADDR <= `S0_BASE_END);
+// assign HSEL1 = (HADDR >= `S1_BASE_START) && (HADDR <= `S1_BASE_END);
 assign HSEL1 = !HSEL0; // && !HSEL1;
 
 endmodule

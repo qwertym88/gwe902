@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gowin-synthesis-project>
+<Project>
+    <Version>beta</Version>
+    <Device id="GW2A-55C" package="PBGA484" speed="8" partNumber="GW2A-LV55PG484C8/I7"/>
+    <FileList>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\ahb_bus\ahb_decoder.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\ahb_bus\ahb_slavemux.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\ahp_periphs\AHBBlockRam.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\ahp_periphs\ahb_defslave.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\common\cpu_mem.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\common\sysahb_periphs.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\mcu_reset.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\opene902.v" type="verilog"/>
+        <File path="C:\Users\qwertym\Desktop\gwe902\src\soc.v" type="verilog"/>
+    </FileList>
+    <OptionList>
+        <Option type="disable_insert_pad" value="0"/>
+        <Option type="looplimit" value="2000"/>
+        <Option type="output_file" value="C:\Users\qwertym\Desktop\gwe902\impl\gwsynthesis\gwe902_test.vg"/>
+        <Option type="print_all_synthesis_warning" value="0"/>
+        <Option type="ram_rw_check" value="0"/>
+        <Option type="verilog_language" value="verilog-2001"/>
+        <Option type="vhdl_language" value="vhdl-1993"/>
+    </OptionList>
+</Project>
