@@ -14,6 +14,9 @@
 #*/
 #-------------------------------------------------------------------
 # the compiler toolset setting
+
+TOOL_EXTENSION := /home/qwertym/桌面/fpga_tools/gcc-elf-newlib-x86_64/bin
+
 CC      = ${TOOL_EXTENSION}/riscv64-unknown-elf-gcc
 AS      = ${TOOL_EXTENSION}/riscv64-unknown-elf-as
 LINK    = ${TOOL_EXTENSION}/riscv64-unknown-elf-ld

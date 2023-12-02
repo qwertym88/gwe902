@@ -13,6 +13,9 @@
 #limitations under the License.
 #*/
 #-------------------------------------------------------------------
+
+TOOL_EXTENSION := /home/qwertym/桌面/fpga_tools/gcc-elf-newlib-x86_64/bin
+
 # the compiler toolset setting
 CC      = ${TOOL_EXTENSION}/riscv64-unknown-elf-gcc
 AS      = ${TOOL_EXTENSION}/riscv64-unknown-elf-as
