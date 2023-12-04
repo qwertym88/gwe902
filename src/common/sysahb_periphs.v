@@ -25,7 +25,7 @@ wire [31:0] hrdata_s1;
 
 // sysahb_hready = hready_s1 & hready_s2 & hready_s3 & hready_s4, 表示总线的hready状态
 
-// sysahb slave1 bram 256kB
+// sysahb slave1 bram 32kB
 // taken from system-on-chip-design-reference P23
 // 只接18位地址线，虽然200 00000 到 208 00000地址的请求都会给到这，不知道该不该这样写
 AHBBlockRam x_sysahb_bram (
@@ -36,13 +36,13 @@ AHBBlockRam x_sysahb_bram (
     .HTRANS(sysahb_htrans),
     .HSIZE(sysahb_hsize[1:0]),
     .HWRITE(sysahb_hwrite),
-    .HADDR(sysahb_haddr[13:0]),
+    .HADDR(sysahb_haddr[14:0]),
     .HWDATA(sysahb_hwdata),
     .HREADYOUT(hready_s0),
     .HRESP(hresp_s0),
     .HRDATA(hrdata_s0)
 );
-defparam x_sysahb_bram.AWIDTH = 14;
+defparam x_sysahb_bram.AWIDTH = 15;
 
 // sysahb slave2 default slave
 // Taken from page 28 of System-on-Chip Design with Arm Cortex-M processors

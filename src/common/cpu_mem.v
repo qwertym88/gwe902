@@ -25,12 +25,12 @@ AHBBlockRam x_iahb_bram (
     .HTRANS(htrans),
     .HSIZE(hsize[1:0]),
     .HWRITE(hwrite),
-    .HADDR(haddr[14:0]),
+    .HADDR(haddr[15:0]),
     .HWDATA(hwdata),
     .HREADYOUT(hready),
     .HRESP(hresp),
     .HRDATA(hrdata)
 );
-defparam x_iahb_bram.AWIDTH = 15; // 15位地址线
+defparam x_iahb_bram.AWIDTH = 16; // 15位地址线
 
 endmodule
