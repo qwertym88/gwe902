@@ -14,7 +14,7 @@
         <File path="src/mcu_reset.v" type="file.verilog" enable="1"/>
         <File path="src/opene902.v" type="file.verilog" enable="1"/>
         <File path="src/soc.v" type="file.verilog" enable="1"/>
-        <File path="gch_e902_combat.cst" type="file.cst" enable="1"/>
-        <File path="gch_e902.sdc" type="file.sdc" enable="1"/>
+        <File path="src/gch_e902.cst" type="file.cst" enable="1"/>
+        <File path="src/gch_e902.sdc" type="file.sdc" enable="1"/>
     </FileList>
 </Project>

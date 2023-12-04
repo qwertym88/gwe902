@@ -16,7 +16,7 @@ module cpu_mem (
 wire hsel;
 assign hsel = htrans[1]; // trans只有00/10两种取值
 
-// IAHB Lite Memory, 512kB
+// IAHB Lite Memory, 64kB
 AHBBlockRam x_iahb_bram (
     .HCLK(sys_clk),
     .HRESETn(sys_resetn),
@@ -31,6 +31,6 @@ AHBBlockRam x_iahb_bram (
     .HRESP(hresp),
     .HRDATA(hrdata)
 );
-defparam x_iahb_bram.AWIDTH = 15; // 19位地址线
+defparam x_iahb_bram.AWIDTH = 15; // 15位地址线
 
 endmodule

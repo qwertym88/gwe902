@@ -1,7 +1,7 @@
 Reading netlist file: "C:\Users\qwertym\Desktop\gwe902\impl\gwsynthesis\gwe902_test.vg"
 Parsing netlist file "C:\Users\qwertym\Desktop\gwe902\impl\gwsynthesis\gwe902_test.vg" completed
 Processing netlist completed
-Reading constraint file: "C:\Users\qwertym\Desktop\gwe902\gch_e902_combat.cst"
+Reading constraint file: "C:\Users\qwertym\Desktop\gwe902\src\gch_e902.cst"
 Physical Constraint parsed completed
 Running placement......
 [10%] Placement Phase 0 completed
@@ -26,5 +26,5 @@ Generate file "C:\Users\qwertym\Desktop\gwe902\impl\pnr\gwe902_test.pin.html" co
 Generate file "C:\Users\qwertym\Desktop\gwe902\impl\pnr\gwe902_test.rpt.html" completed
 Generate file "C:\Users\qwertym\Desktop\gwe902\impl\pnr\gwe902_test.rpt.txt" completed
 Generate file "C:\Users\qwertym\Desktop\gwe902\impl\pnr\gwe902_test.tr.html" completed
-Sat Dec 02 14:12:32 2023
+Sun Dec 03 11:36:11 2023
 
