@@ -1,0 +1,7 @@
+/sw/**/*.o
+/impl/gwsynthesis/*
+/impl/pnr/*
+/impl/temp/*
+/impl/project_process_config.json
+!/impl/gwsynthesis/gwe902_test.fs
+gwe902.gprj.user
