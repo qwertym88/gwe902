@@ -8,9 +8,6 @@ module mcu_reset (
     output wire sys_resetn
 );
 
-wire mcu_resetn;
-wire cpu_rst;
-wire sys_rst;
 
 // ensure external power-on-reset is synchronized to HCLK,
 // Taken from page 28 of System-on-Chip Design with Arm Cortex-M processors

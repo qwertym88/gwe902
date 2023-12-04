@@ -1,7 +1,3 @@
-# 记录
-
-随笔而已，大量过时信息和碎碎念，有意义的之后会整理在其他文档里的
-
 # 总线结构
 
 个人对此的理解主要参照了这张图，大概最终做出来类似的东西吧。
@@ -115,31 +111,31 @@ ram的设计主要参照mem_ctrl.v/iahb_mem.ctrl.v，其中两个本质上没有
 ``` verilog
 // ensure external power-on-reset is synchronized to HCLK,
 // Taken from page 28 of System-on-Chip Design with Arm Cortex-M processors
-reg [1:0] mcu_rst_reg;
-always @(posedge sys_clk or negedge mcu_rst_signal)
+reg mcu_rst_reg[1:0]
+always@(posedge clk or negedge mcu_rst_signal)
 begin
  if (mcu_rst_signal == 1'b0) begin
-    mcu_rst_reg <= 2'b0; //异步复位
+     mcu_rst_reg <= 2'b0; //异步复位
  end    
  else begin
-    mcu_rst_reg[0] <= 1'b1;
-    mcu_rst_reg[1] <= mcu_rst_reg[0]; // 两个时钟周期后释放
+     mcu_rst_reg[0] <= 1'b1;
+     mcu_rst_reg[1] <= mcu_rst_reg[0]; // 两个时钟周期后释放
  end    
 end
-assign mcu_rstn = mcu_rst_reg[1]; // 使上电复位上升沿与clk同步
+assign mcu_rstn = cpu_rst_req_reg[1]; // 使上电复位上升沿与clk同步
 
 // cpu_pad_soft_rst[0]发出内核复位请求，等待2周期执行
 reg [1:0] cpu_rst_reg;
-always @(posedge sys_clk or negedge mcu_rstn) begin
+always @(posedge cpu_clk or negedge mcu_rstn) begin
   if (~mcu_rstn) begin
     cpu_rst_reg <= 2'b00;
   end 
   else begin
-    cpu_rst_reg[0] <= cpu_pad_soft_rst[0];
-    cpu_rst_reg[1] <= cpu_rst_reg[0] & cpu_pad_soft_rst[0];
+    cpu_rst_reg[0] <= ~cpu_pad_soft_rst[0];
+    cpu_rst_reg[1] <= cpu_rst_reg[0] & ~cpu_pad_soft_rst[0];
   end
 end
-assign cpu_rst = ~cpu_rst_reg[1]; // 即cpu_pad_soft_rst[0]=1两周期后，或上电复位信号mcu_rstn=0时处理器复位
+assign cpu_rstn = cpu_rst_reg[1]; // 即cpu_pad_soft_rst[0]=1两周期后，或上电复位信号mcu_rstn=0时处理器复位
 
 // cpu_pad_soft_rst[1]发出系统复位请求，等待2周期执行
 reg [1:0] sys_rst_reg;
@@ -148,18 +144,16 @@ always @(posedge sys_clk or negedge mcu_rstn) begin
     sys_rst_reg <= 2'b00;
   end 
   else begin
-    sys_rst_reg[0] <= cpu_pad_soft_rst[1];
-    sys_rst_reg[1] <= sys_rst_reg[0] & cpu_pad_soft_rst[1];
+    sys_rst_reg[0] <= ~cpu_pad_soft_rst[0];
+    sys_rst_reg[1] <= sys_rst_reg[0] & ~cpu_pad_soft_rst[0];
   end
 end
-assign sys_rst = ~sys_rst_reg[1]; // 即cpu_pad_soft_rst[1]=1两周期后，或上电复位信号mcu_rstn=0时系统复位
+assign sys_rstn = sys_rst_reg[1]; // 即cpu_pad_soft_rst[1]=1两周期后，或上电复位信号mcu_rstn=0时系统复位
 
 // 见集成手册p19
-assign pad_cpu_rst_b = cpu_rst & sys_rst;
-assign pad_had_rst_b = sys_rst;
+assign pad_cpu_rst_b = cpu_rstn & sys_rstn;
+assign pad_had_rst_b = sys_rstn;
 assign pad_had_jtg_trst_b = mcu_rstn;
-
-assign sys_resetn = sys_rst;
 ```
 
 # jtag调试接口

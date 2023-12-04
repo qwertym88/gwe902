@@ -15,7 +15,7 @@
 #-------------------------------------------------------------------
 # the compiler toolset setting
 
-TOOL_EXTENSION := C:/Users/qwertym/Desktop/fpga_util/Xuantie-900-gcc-elf-newlib-mingw-V2.8.0/bin
+TOOL_EXTENSION := C:/Users/qwertym/Desktop/fpga/gcc/bin
 
 CC      = ${TOOL_EXTENSION}/riscv64-unknown-elf-gcc.exe
 AS      = ${TOOL_EXTENSION}/riscv64-unknown-elf-as.exe

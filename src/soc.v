@@ -18,7 +18,6 @@ wire    [31:0]  iahb_hwdata;
 wire            iahb_hwrite;
 wire            iahb_hresp; // 仅支持OKAY和ERROR两种响应,故只有一位
 wire    [31:0]  iahb_hrdata;
-wire            iahb_hready;
 // 系统总线部分
 wire    [31:0]  sysahb_haddr;
 wire    [2 :0]  sysahb_hburst;
@@ -69,7 +68,6 @@ mcu_reset x_mcu_reset(
 );
 
 // 中断源请求信号
-wire nmi_req;
 assign pad_vic_int_vld = 32'h0;
 assign pad_clic_int_vld[ 31 : 0] = pad_vic_int_vld[ 31 : 0];
 assign pad_clic_int_vld[64 - 1 : 32] = 'h0;
@@ -154,7 +152,7 @@ openE902 x_e902 (
   // .cpu_pad_dfs_ack      (cpu_pad_dfs_ack     ),
 );
 
-// 指令总线只挂了一个ram
+// 指令总线只挂了一个512M的ram
 cpu_mem x_cpu_mem(
   .sys_clk    (sys_clk             ),
   .sys_resetn (sys_resetn          ),
@@ -190,11 +188,11 @@ sysahb_periphs x_sysahb_periphs (
 
 fff fffff
 
-32kb ram 0x20000000 ~ 0x207fffff
+256kb ram 0x20000000 ~ 0x207fffff
 
 --------------- 指令空间 0xe00*1M = 512M
 
-64kb ram 0 ~ 0x20000000
+512kb ram 0 ~ 0x20000000
 
 000 00000
 
