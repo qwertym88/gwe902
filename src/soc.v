@@ -1,9 +1,16 @@
 module soc(
   input clk27m,
   input mcu_rst_signal,
-
+  // jtag
   input jtag_tclk,
-  inout jtag_tms
+  inout jtag_tms,
+  // UART
+  input  wire uart0_rxd,
+  output wire uart0_txd,
+  output wire uart0_txen,
+  // GPIO
+  inout wire [7:0] gpio_portA,
+  inout wire [7:0] gpio_portB
 );
 
 wire sys_resetn;
@@ -45,17 +52,19 @@ wire [1:0] cpu_pad_soft_rst;
 wire pad_cpu_nmi;
 wire [63:0] pad_clic_int_vld;
 wire pad_cpu_ext_int_b;
-wire [31:0] pad_vic_int_vld;
+wire [31:0] pad_vic_int_vld; // apb中断
 reg [63:0] pad_cpu_sys_cnt;
+wire watchdog_interrupt;
+wire watchdog_reset;
 // 时钟
-wire sys_clk;
-CLKDIV clk_div35 (
-  .HCLKIN(clk27m),
-  .RESETN(sys_resetn),
-  .CALIB(1'b1),
-  .CLKOUT(sys_clk)
-);
-defparam clk_div35.DIV_MODE="3.5";
+wire sys_clk = clk27m;
+// CLKDIV clk_div35 (
+//   .HCLKIN(clk27m),
+//   .RESETN(sys_resetn),
+//   .CALIB(1'b1),
+//   .CLKOUT(sys_clk)
+// );
+// defparam clk_div35.DIV_MODE="3.5";
 
 // 复位控制
 mcu_reset x_mcu_reset(
@@ -70,7 +79,7 @@ mcu_reset x_mcu_reset(
 
 // 中断源请求信号
 wire nmi_req;
-assign pad_vic_int_vld = 32'h0;
+// assign pad_vic_int_vld = 32'h0;
 assign pad_clic_int_vld[ 31 : 0] = pad_vic_int_vld[ 31 : 0];
 assign pad_clic_int_vld[64 - 1 : 32] = 'h0;
 // CPU 中断请求信号：低电平时表示外部中断控制器发起中断申请。
@@ -172,18 +181,26 @@ cpu_mem x_cpu_mem(
 
 // 系统外设总线
 sysahb_periphs x_sysahb_periphs (
-  .sys_clk             (sys_clk             ),
-  .sys_resetn          (sys_resetn          ),
-  .sysahb_haddr        (sysahb_haddr        ),
-  .sysahb_hwdata       (sysahb_hwdata       ),
-  .sysahb_hburst       (sysahb_hburst       ),
-  .sysahb_hsize        (sysahb_hsize        ),
-  .sysahb_htrans       (sysahb_htrans       ),
-  .sysahb_hwrite       (sysahb_hwrite       ),
-  .sysahb_hprot        (sysahb_hprot        ),
-  .sysahb_hrdata       (sysahb_hrdata       ),
-  .sysahb_hready       (sysahb_hready       ),
-  .sysahb_hresp        (sysahb_hresp        )
+  .sys_clk             (sys_clk              ),
+  .sys_resetn          (sys_resetn           ),
+  .sysahb_haddr        (sysahb_haddr         ),
+  .sysahb_hwdata       (sysahb_hwdata        ),
+  .sysahb_hburst       (sysahb_hburst        ),
+  .sysahb_hsize        (sysahb_hsize         ),
+  .sysahb_htrans       (sysahb_htrans        ),
+  .sysahb_hwrite       (sysahb_hwrite        ),
+  .sysahb_hprot        (sysahb_hprot         ),
+  .sysahb_hrdata       (sysahb_hrdata        ),
+  .sysahb_hready       (sysahb_hready        ),
+  .sysahb_hresp        (sysahb_hresp         ),
+  .uart0_rxd           ( uart0_rxd           ),
+  .uart0_txd           ( uart0_txd           ),
+  .uart0_txen          ( uart0_txen          ),
+  .timer0_extin        ( sys_clk             ),
+  .timer1_extin        ( sys_clk             ),
+  .apbsubsys_interrupt ( pad_vic_int_vld     ),
+  .gpio_portA          ( gpio_portA          ),
+  .gpio_portB          ( gpio_portB          )
 );
 
 /* ahb memory space

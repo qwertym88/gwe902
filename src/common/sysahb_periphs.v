@@ -10,8 +10,31 @@ module sysahb_periphs (
   input wire [3 :0] sysahb_hprot,
   output wire sysahb_hready,
   output wire sysahb_hresp,
-  output wire [31:0] sysahb_hrdata
+  output wire [31:0] sysahb_hrdata,
+  // AHB Peripherals
+  // UART
+  input  wire           uart0_rxd,
+  output wire           uart0_txd,
+  output wire           uart0_txen,
+  // Timer
+  input  wire           timer0_extin,
+  input  wire           timer1_extin,
+  // Interrupt outputs
+  output wire   [31:0]  apbsubsys_interrupt,
+//   output wire           watchdog_interrupt,
+//   output wire           watchdog_reset,
+  // GPIO
+  inout wire [7:0] gpio_portA,
+  inout wire [7:0] gpio_portB
 );
+
+//SYS MEM
+`define S0_BASE_START 32'h20000000
+`define S0_BASE_END   32'h207fffff
+
+//APB
+`define S2_BASE_START 32'h40000000
+`define S2_BASE_END   32'h4fffffff
 
 wire hsel_s0;
 wire hresp_s0;
@@ -22,6 +45,11 @@ wire hsel_s1;
 wire hresp_s1;
 wire hready_s1;
 wire [31:0] hrdata_s1;
+
+wire hsel_s2;
+wire hresp_s2;
+wire hready_s2;
+wire [31:0] hrdata_s2;
 
 // sysahb_hready = hready_s1 & hready_s2 & hready_s3 & hready_s4, 表示总线的hready状态
 
@@ -56,12 +84,36 @@ ahb_defslave x_ahb_defslave(
     .HRESP(hresp_s1) 
 );
 
-ahb_decoder x_ahb_decoder(
-    .HADDR ( sysahb_haddr ),
-    .EN    ( 1'b1         ),
-    .HSEL0 ( hsel_s0      ),
-    .HSEL1 ( hsel_s1      )
+apb_subsystem u_apb_subsystem(
+    .HCLK                ( sys_clk             ),
+    .RESETn              ( sys_resetn          ),
+    .HSEL                ( hsel_s2             ),
+    .HADDR               ( sysahb_haddr        ),
+    .HTRANS              ( sysahb_htrans       ),
+    .HWRITE              ( sysahb_hwrite       ),
+    .HSIZE               ( sysahb_hsize        ),
+    .HPROT               ( sysahb_hprot        ),
+    .HREADY              ( sysahb_hready       ),
+    .HWDATA              ( sysahb_hwdata       ),
+    .HREADYOUT           ( hready_s2           ),
+    .HRDATA              ( hrdata_s2           ),
+    .HRESP               ( hresp_s2            ),
+    .uart0_rxd           ( uart0_rxd           ),
+    .uart0_txd           ( uart0_txd           ),
+    .uart0_txen          ( uart0_txen          ),
+    .timer0_extin        ( timer0_extin        ),
+    .timer1_extin        ( timer1_extin        ),
+    .apbsubsys_interrupt ( apbsubsys_interrupt ),
+    // .watchdog_interrupt  ( watchdog_interrupt  ),
+    // .watchdog_reset      ( watchdog_reset      ),
+    .gpio_portA          ( gpio_portA          ),
+    .gpio_portB          ( gpio_portB          )
 );
+
+// assign hsel according to haddr
+assign hsel_s0 = (sysahb_haddr >= `S0_BASE_START) && (sysahb_haddr <= `S0_BASE_END);
+assign hsel_s2 = (sysahb_haddr >= `S2_BASE_START) && (sysahb_haddr <= `S2_BASE_END);
+assign hsel_s1 = !hsel_s0 && !hsel_s2;
 
 // ahb mux
 // taken from system-on-chip-design-reference P150

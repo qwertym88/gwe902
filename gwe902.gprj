@@ -7,10 +7,25 @@
     <FileList>
         <File path="src/ahb_bus/ahb_decoder.v" type="file.verilog" enable="1"/>
         <File path="src/ahb_bus/ahb_slavemux.v" type="file.verilog" enable="1"/>
-        <File path="src/ahp_periphs/AHBBlockRam.v" type="file.verilog" enable="1"/>
-        <File path="src/ahp_periphs/ahb_defslave.v" type="file.verilog" enable="1"/>
+        <File path="src/ahb_periphs/AHBBlockRam.v" type="file.verilog" enable="1"/>
+        <File path="src/ahb_periphs/ahb_defslave.v" type="file.verilog" enable="1"/>
+        <File path="src/apb_periphs/apb_gpio.v" type="file.verilog" enable="1"/>
+        <File path="src/common/apb_subsystem.v" type="file.verilog" enable="1"/>
         <File path="src/common/cpu_mem.v" type="file.verilog" enable="1"/>
         <File path="src/common/sysahb_periphs.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_ahb_to_apb.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_dualtimers.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_dualtimers_defs.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_dualtimers_frc.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_slave_mux.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_subsystem.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_test_slave.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_timer.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_uart.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_watchdog.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_watchdog_defs.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_apb_watchdog_frc.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_irq_sync.v" type="file.verilog" enable="1"/>
         <File path="src/mcu_reset.v" type="file.verilog" enable="1"/>
         <File path="src/opene902.v" type="file.verilog" enable="1"/>
         <File path="src/soc.v" type="file.verilog" enable="1"/>
