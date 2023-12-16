@@ -32,14 +32,14 @@ module apb_subsystem (
 // pclk与hclk同相不同频
 wire PCLK;
 wire PENABLE; // apb设备使能
-// CLKDIV clk_div4 (
-//   .HCLKIN(HCLK),
-//   .RESETN(RESETn),
-//   .CALIB(1'b1),
-//   .CLKOUT(PCLK)
-// );
-// defparam clk_div4.DIV_MODE="4";
-assign PCLK = HCLK;
+CLKDIV clk_div4 (
+  .HCLKIN(HCLK),
+  .RESETN(RESETn),
+  .CALIB(1'b1),
+  .CLKOUT(PCLK)
+);
+defparam clk_div4.DIV_MODE="4";
+// assign PCLK = HCLK;
 
 wire PCLKEN;
 wire PRESETn;
@@ -115,6 +115,8 @@ assign apb_interrupt[31:0] = {
 cmsdk_apb_subsystem#(
     .APB_EXT_PORT12_ENABLE      ( 1 ),
     .APB_EXT_PORT13_ENABLE      ( 1 ),
+    .APB_EXT_PORT14_ENABLE      ( 0 ),
+    .APB_EXT_PORT15_ENABLE      ( 0 ),
     .INCLUDE_APB_TEST_SLAVE     ( 0 ),
     .INCLUDE_APB_TIMER0         ( 1 ),
     .INCLUDE_APB_TIMER1         ( 0 ),
@@ -147,13 +149,21 @@ cmsdk_apb_subsystem#(
     .PWDATA               ( PWDATA              ),
     .PENABLE              ( PENABLE             ),
     .ext12_psel           ( gpioA_psel          ),
-    .ext13_psel           ( gpioB_psel          ),
     .ext12_prdata         ( gpioA_prdata        ),
     .ext12_pready         ( gpioA_pready        ),
     .ext12_pslverr        ( gpioA_pslverr       ),
+    .ext13_psel           ( gpioB_psel          ),
     .ext13_prdata         ( gpioB_prdata        ),
     .ext13_pready         ( gpioB_pready        ),
     .ext13_pslverr        ( gpioB_pslverr       ),
+    // .ext14_psel           ( gpioB_psel          ),
+    .ext14_prdata         ( 32'h00000000        ),
+    .ext14_pready         ( 1'b1                ),
+    .ext14_pslverr        ( 1'b0                ),
+    // .ext15_psel           ( gpioB_psel          ),
+    .ext15_prdata         ( 32'h00000000        ),
+    .ext15_pready         ( 1'b1                ),
+    .ext15_pslverr        ( 1'b0                ),
     .APBACTIVE            ( APBACTIVE           ),
     .uart0_rxd            ( uart0_rxd           ),
     .uart0_txd            ( uart0_txd           ),
