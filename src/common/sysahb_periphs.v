@@ -18,9 +18,8 @@ module sysahb_periphs (
   output wire           uart0_txen,
   // Timer
   input  wire           timer0_extin,
-  input  wire           timer1_extin,
   // Interrupt outputs
-  output wire   [31:0]  apbsubsys_interrupt,
+  output wire   [31:0]  apb_interrupt,
 //   output wire           watchdog_interrupt,
 //   output wire           watchdog_reset,
   // GPIO
@@ -88,7 +87,7 @@ apb_subsystem u_apb_subsystem(
     .HCLK                ( sys_clk             ),
     .RESETn              ( sys_resetn          ),
     .HSEL                ( hsel_s2             ),
-    .HADDR               ( sysahb_haddr        ),
+    .HADDR               ( sysahb_haddr[15:0]  ),
     .HTRANS              ( sysahb_htrans       ),
     .HWRITE              ( sysahb_hwrite       ),
     .HSIZE               ( sysahb_hsize        ),
@@ -102,8 +101,7 @@ apb_subsystem u_apb_subsystem(
     .uart0_txd           ( uart0_txd           ),
     .uart0_txen          ( uart0_txen          ),
     .timer0_extin        ( timer0_extin        ),
-    .timer1_extin        ( timer1_extin        ),
-    .apbsubsys_interrupt ( apbsubsys_interrupt ),
+    .apb_interrupt       ( apb_interrupt       ),
     // .watchdog_interrupt  ( watchdog_interrupt  ),
     // .watchdog_reset      ( watchdog_reset      ),
     .gpio_portA          ( gpio_portA          ),
@@ -129,11 +127,11 @@ ahb_slavemux x_ahb_slavemux(
     .HREADYOUT1 ( hready_s1     ),
     .HRESP1     ( hresp_s1      ),
     .HRDATA1    ( hrdata_s1     ),
-    .HSEL2      ( 1'b0          ), // 暂时用不上
-    .HREADYOUT2 ( 1'b1          ),
-    .HRESP2     ( 1'b0          ),
-    .HRDATA2    ( 32'h0         ),
-    .HSEL3      ( 1'b0          ),
+    .HSEL2      ( hsel_s2       ), 
+    .HREADYOUT2 ( hready_s2     ),
+    .HRESP2     ( hresp_s2      ),
+    .HRDATA2    ( hrdata_s2     ),
+    .HSEL3      ( 1'b0          ), // 暂时用不上
     .HREADYOUT3 ( 1'b1          ),
     .HRESP3     ( 1'b0          ),
     .HRDATA3    ( 32'h0         ),

@@ -1,9 +1,9 @@
 module soc(
-  input clk27m,
-  input mcu_rst_signal,
+  input wire clk27m,
+  input wire mcu_rst_signal,
   // jtag
-  input jtag_tclk,
-  inout jtag_tms,
+  input wire jtag_tclk,
+  inout wire jtag_tms,
   // UART
   input  wire uart0_rxd,
   output wire uart0_txd,
@@ -57,14 +57,14 @@ reg [63:0] pad_cpu_sys_cnt;
 wire watchdog_interrupt;
 wire watchdog_reset;
 // 时钟
-wire sys_clk = clk27m;
-// CLKDIV clk_div35 (
-//   .HCLKIN(clk27m),
-//   .RESETN(sys_resetn),
-//   .CALIB(1'b1),
-//   .CLKOUT(sys_clk)
-// );
-// defparam clk_div35.DIV_MODE="3.5";
+// wire sys_clk = clk27m;
+CLKDIV clk_div4 (
+  .HCLKIN(clk27m),
+  .RESETN(sys_resetn),
+  .CALIB(1'b1),
+  .CLKOUT(sys_clk)
+);
+defparam clk_div4.DIV_MODE="4";
 
 // 复位控制
 mcu_reset x_mcu_reset(
@@ -80,7 +80,7 @@ mcu_reset x_mcu_reset(
 // 中断源请求信号
 wire nmi_req;
 // assign pad_vic_int_vld = 32'h0;
-assign pad_clic_int_vld[ 31 : 0] = pad_vic_int_vld[ 31 : 0];
+assign pad_clic_int_vld[31 : 0] = pad_vic_int_vld[31 : 0];
 assign pad_clic_int_vld[64 - 1 : 32] = 'h0;
 // CPU 中断请求信号：低电平时表示外部中断控制器发起中断申请。
 assign pad_cpu_ext_int_b = 1'b1;
@@ -197,8 +197,7 @@ sysahb_periphs x_sysahb_periphs (
   .uart0_txd           ( uart0_txd           ),
   .uart0_txen          ( uart0_txen          ),
   .timer0_extin        ( sys_clk             ),
-  .timer1_extin        ( sys_clk             ),
-  .apbsubsys_interrupt ( pad_vic_int_vld     ),
+  .apb_interrupt       ( pad_vic_int_vld     ),
   .gpio_portA          ( gpio_portA          ),
   .gpio_portB          ( gpio_portB          )
 );

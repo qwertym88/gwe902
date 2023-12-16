@@ -20,9 +20,8 @@ module apb_subsystem (
     output wire           uart0_txen,
     // Timer
     input  wire           timer0_extin,
-    input  wire           timer1_extin,
     // Interrupt outputs
-    output wire   [31:0]  apbsubsys_interrupt,
+    output wire   [31:0]  apb_interrupt,
     // output wire           watchdog_interrupt,
     // output wire           watchdog_reset,
     // GPIO
@@ -33,19 +32,22 @@ module apb_subsystem (
 // pclk与hclk同相不同频
 wire PCLK;
 wire PENABLE; // apb设备使能
-CLKDIV clk_div4 (
-  .HCLKIN(HCLK),
-  .RESETN(RESETn),
-  .CALIB(1'b1),
-  .CLKOUT(PCLK)
-);
-defparam clk_div4.DIV_MODE="4";
+// CLKDIV clk_div4 (
+//   .HCLKIN(HCLK),
+//   .RESETN(RESETn),
+//   .CALIB(1'b1),
+//   .CLKOUT(PCLK)
+// );
+// defparam clk_div4.DIV_MODE="4";
+assign PCLK = HCLK;
 
 wire PCLKEN;
 wire PRESETn;
 wire [11:0] PADDR;
 wire PWRITE;
 wire [31:0] PWDATA;
+assign PCLKEN = 1'b1;
+assign PRESETn = RESETn;
 
 // 控制apb桥时钟信号使能
 wire PCLKG;
@@ -71,7 +73,7 @@ wire [7:0] gpioB_outEn;
 wire [7:0] gpioB_int;
 wire gpioB_combint;
 
-
+wire [31:0]  apbsubsys_interrupt;
 
 /*
 apbsubsys_interrupt[31:0] = {
@@ -94,10 +96,21 @@ apbsubsys_interrupt[31:0] = {
     i_uart0_rxint};                   // 0
 */
 
-assign apbsubsys_interrupt[6] = gpioA_combint;
-assign apbsubsys_interrupt[7] = gpioB_combint;
-assign apbsubsys_interrupt[23:16] = gpioA_int;
-assign apbsubsys_interrupt[31:24] = gpioB_int;
+assign apb_interrupt[31:0] = {
+    apbsubsys_interrupt[5:0],
+    gpioA_combint,
+    gpioB_combint,
+    apbsubsys_interrupt[15:8],
+    gpioA_int[7:0],
+    gpioB_int[7:0]
+};
+
+// assign apb_interrupt[31:0] = 32'h0;
+
+// assign apbsubsys_interrupt[6] = gpioA_combint;
+// assign apbsubsys_interrupt[7] = gpioB_combint;
+// assign apbsubsys_interrupt[23:16] = gpioA_int;
+// assign apbsubsys_interrupt[31:24] = gpioB_int;
 
 cmsdk_apb_subsystem#(
     .APB_EXT_PORT12_ENABLE      ( 1 ),
@@ -154,7 +167,7 @@ cmsdk_apb_subsystem#(
 // The AHB to APB bridge generates APBACTIVE signal. It enables you to handle clock gating for gated APB 
 // bus clock, PCLKG in the example system.
 // When there is no APB transfer, you can stop the gated APB bus clock to reduce power.
-assign PCLKG = APBACTIVE;
+assign PCLKG = 1'b1;
 
 apb_gpio#(
     .PortWidth ( 8 )
@@ -162,7 +175,7 @@ apb_gpio#(
     .PCLK    ( PCLK    ),
     .PRESETn ( RESETn ),
     .PSEL    ( gpioA_psel    ),
-    .PADDR   ( PADDR   ),
+    .PADDR   ( PADDR[7:2]   ),
     .PENABLE ( PENABLE ),
     .PWRITE  ( PWRITE  ),
     .PWDATA  ( PWDATA  ),
@@ -192,7 +205,7 @@ apb_gpio#(
     .PCLK    ( PCLK    ),
     .PRESETn ( PRESETn ),
     .PSEL    ( gpioB_psel    ),
-    .PADDR   ( PADDR   ),
+    .PADDR   ( PADDR[7:2]   ),
     .PENABLE ( PENABLE ),
     .PWRITE  ( PWRITE  ),
     .PWDATA  ( PWDATA  ),
