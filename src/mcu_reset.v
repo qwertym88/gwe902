@@ -8,7 +8,7 @@ module mcu_reset (
     output wire sys_resetn
 );
 
-wire mcu_resetn;
+wire mcu_rstn;
 wire cpu_rst;
 wire sys_rst;
 

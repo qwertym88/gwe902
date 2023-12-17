@@ -18,34 +18,34 @@
 #define GPIOB ((GPIO_TypeDef *)GPIOB_BASE)
 
 /*
-DATA 0x000 R/W 8 0x--   [7:0] Data value.
-                        Read Received data.
-                        Write Transmit data.
-STATE 0x004 R/W 4 0x0   [3] RX buffer overrun, write 1 to clear.
-                        [2] TX buffer overrun, write 1 to clear.
-                        [1] RX buffer full, read-only.
-                        [0] TX buffer full, read-only.
-CTRL 0x008 R/W 7 0x00   [6] High-speed test mode for TX only.
-                        [5] RX overrun interrupt enable.
-                        [4] TX overrun interrupt enable.
-                        [3] RX interrupt enable.
-                        [2] TX interrupt enable.
-                        [1] RX enable.
-                        [0] TX enable.
-INTSTATUS 0x00C R/W 4 0x0   [3] RX overrun interrupt. Write 1 to clear.
-INTCLEAR                    [2] TX overrun interrupt. Write 1 to clear.
-                            [1] RX interrupt. Write 1 to clear.
-                            [0] TX interrupt. Write 1 to clear.
-BAUDDIV 0x010 R/W 20 0x00000 [19:0] Baud rate divider. The minimum number is 16.
+0x000 CTRL R/W 0x00 Control register (bit[3:0])
+                    [3] Receive interrupt enable
+                    [2] Transmit interrupt enable
+                    [1] Receive enable
+                    [0] Transmit enable
+0x004 STAT R/W 0x00 Status register (bit[3:0])
+                    [3] Receive overrun error, write 1 to clear
+                    [2] Transmit overrun error, write 1 to clear
+                    [1] Receive buffer full
+                    [0] Transmit buffer full
+0x008 TXD R/W 0x00  Write : Transmit data register
+                    Read : Transmit buffer full (bit[0])
+0x00C RXD RO 0x00   Received data register (bit[7:0])
+0x010 BAUDDIV R/W 0x00  Baud rate divider (bit[19:0])
+                        (Minimum value is 32)
+0x014 INTSTATE R/Wc 0x00    Interrupt status
+                            [1] – TX interrupt, write 1 to clear
+                            [0] – RX interrupt, write 1 to clea
 */
 
 typedef struct
 {
-    __IO uint32_t DATA;
-    __IO uint32_t STATE;
     __IO uint32_t CTRL;
-    __IO uint32_t INTSTATE;
+    __IO uint32_t STAT;
+    __IO uint32_t TXD;
+    __I uint32_t RXD;
     __IO uint32_t BAUDDIV;
+    __IO uint32_t INTSTATE;
 } UART_TypeDef;
 
 /*

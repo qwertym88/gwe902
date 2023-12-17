@@ -25,7 +25,7 @@ module apb_subsystem (
     inout wire [7:0] gpio_portB
 );
 
-// pclk与hclk同相不同频
+// pclk=hclk/4
 wire PCLK;
 CLKDIV clk_div2 (
   .HCLKIN(HCLK),
@@ -34,11 +34,15 @@ CLKDIV clk_div2 (
   .CLKOUT(PCLK)
 );
 defparam clk_div2.DIV_MODE="4";
+// PCLKG控制apb时钟信号使能，原理上能节能
+// 手册说这样写，但实际PCLKG=PCLK更方便
+// wire PCLKG;
+// wire APBACTIVE;
+// assign PCLKG = APBACTIVE ? PCLK : 1'b0;
 
-
+wire        PENABLE; // 只是接口需要，实际近乎无用
+wire        PSEL;   // 实际近乎无用
 wire        PRESETn;
-wire        PENABLE; // apb设备使能
-wire        PSEL;
 wire [15:0] PADDR;
 wire        PWRITE;
 wire [31:0] PWDATA;
@@ -50,56 +54,36 @@ wire        PRESP;
 wire        PSLVERR;
 assign PRESETn = HRESETn;
 
-// 控制apb桥时钟信号使能
-// wire PCLKG;
-// wire APBACTIVE;
-// assign PCLKG = APBACTIVE ? PCLK : 1'b0;
-// assign PCLKG = PCLK;
-
+// uart0 0x1000
 wire        uart0_psel;
 wire [31:0] uart0_prdata;
 wire        uart0_pready;
 wire        uart0_pslverr;
-wire uart0_txint;
-wire uart0_rxint;
-wire uart0_txovrint;
-wire uart0_rxovrint;
-wire uart0_overflow_int;
-wire uart0_combined_int;
+wire        uart0_txint;
+wire        uart0_rxint;
+wire        uart0_baudtick;
 
+// gpioa 0x1000
 wire        gpioA_psel;
 wire [31:0] gpioA_prdata;
 wire        gpioA_pready;
 wire        gpioA_pslverr;
-wire [7:0] gpioA_in;
-wire [7:0] gpioA_out;
-wire [7:0] gpioA_outEn;
-wire [7:0] gpioA_int;
-wire gpioA_combint;
+wire [7:0]  gpioA_in;
+wire [7:0]  gpioA_out;
+wire [7:0]  gpioA_outEn;
+wire [7:0]  gpioA_int;
+wire        gpioA_combint;
 
+// gpiob 0x2000
 wire        gpioB_psel;
 wire [31:0] gpioB_prdata;
 wire        gpioB_pready;
 wire        gpioB_pslverr;
-wire [7:0] gpioB_in;
-wire [7:0] gpioB_out;
-wire [7:0] gpioB_outEn;
-wire [7:0] gpioB_int;
-wire gpioB_combint;
-
-wire        uart0_psel;
-wire [31:0] uart0_prdata;
-wire        uart0_pready;
-wire        uart0_pslverr;
-wire uart0_txint;
-wire uart0_rxint;
-// wire uart0_txovrint;
-// wire uart0_rxovrint;
-// wire uart0_overflow_int;
-// wire uart0_combined_int;
-wire uart0_baudtick;
-wire uart0_rx;
-wire uart0_tx;
+wire [7:0]  gpioB_in;
+wire [7:0]  gpioB_out;
+wire [7:0]  gpioB_outEn;
+wire [7:0]  gpioB_int;
+wire        gpioB_combint;
 
 wire [31:0]  apbsubsys_interrupt;
 assign apb_interrupt[31:0] = {
@@ -108,11 +92,11 @@ assign apb_interrupt[31:0] = {
     gpioA_int[7:0],
     gpioB_combint,
     gpioA_combint,
-    // uart0_overflow_int,
     uart0_txint,
     uart0_rxint
 };
 
+// async ahb to apb bridge
 cmsdk_ahb_to_apb_async#(
     .ADDRWIDTH ( 16 )
 )u_cmsdk_ahb_to_apb_async(
@@ -153,72 +137,68 @@ cmsdk_apb_slave_mux#(
 )
 u_apb_slave_mux (
     // Inputs
-    .DECODE4BIT        (PADDR[15:12]), // 高4位分成16个apb设备
-    .PSEL              (PSEL),
+    .DECODE4BIT        ( PADDR[15:12] ), // 高4位分成16个apb设备
+    .PSEL              ( PSEL         ),
     // PSEL (output) and return status & data (inputs) for each port
-    .PSEL0             (uart0_psel),
-    .PREADY0           (uart0_pready),
-    .PRDATA0           (uart0_prdata),
-    .PSLVERR0          (uart0_pslverr),
-    .PSEL1             (gpioA_psel),
-    .PREADY1           (gpioA_pready),
-    .PRDATA1           (gpioA_prdata),
-    .PSLVERR1          (gpioA_pslverr),
-    .PSEL2             (gpioB_psel),
-    .PREADY2           (gpioB_pready),
-    .PRDATA2           (gpioB_prdata),
-    .PSLVERR2          (gpioB_pslverr),
+    .PSEL0             ( uart0_psel    ),
+    .PREADY0           ( uart0_pready  ),
+    .PRDATA0           ( uart0_prdata  ),
+    .PSLVERR0          ( uart0_pslverr ),
+    .PSEL1             ( gpioA_psel    ),
+    .PREADY1           ( gpioA_pready  ),
+    .PRDATA1           ( gpioA_prdata  ),
+    .PSLVERR1          ( gpioA_pslverr ),
+    .PSEL2             ( gpioB_psel    ),
+    .PREADY2           ( gpioB_pready  ),
+    .PRDATA2           ( gpioB_prdata  ),
+    .PSLVERR2          ( gpioB_pslverr ),
     // Output
-    .PREADY            (PREADY),
-    .PRDATA            (PRDATA),
-    .PSLVERR           (PSLVERR)
+    .PREADY            ( PREADY         ),
+    .PRDATA            ( PRDATA         ),
+    .PSLVERR           ( PSLVERR        )
 );
 
-cmsdk_apb_uart u_cmsdk_apb_uart(
-    .PCLK      ( PCLK      ),
-    .PCLKG     ( PCLK      ),
-    .PRESETn   ( PRESETn   ),
-    .PSEL      ( uart0_psel      ),
-    .PADDR     ( PADDR[11:2]     ),
-    .PENABLE   ( PENABLE   ),
-    .PWRITE    ( PWRITE    ),
-    .PWDATA    ( PWDATA    ),
-    .ECOREVNUM ( 4'h0      ),
-    .PRDATA    ( uart0_prdata    ),
-    .PREADY    ( uart0_pready    ),
-    .PSLVERR   ( uart0_pslverr   ),
-    .RXD       ( uart0_rxd       ),
-    .TXD       ( uart0_txd       ),
-    .TXEN      ( uart0_txen      ),
-    // .BAUDTICK  ( BAUDTICK  ),
-    .TXINT     ( uart0_txint     ),
-    .RXINT     ( uart0_rxint     ),
-    .TXOVRINT  ( uart0_txovrint  ),
-    .RXOVRINT  ( uart0_rxovrint  ),
-    .UARTINT   ( uart0_combined_int   )
+// Taken from System-on-Chip Design with Arm Cortex-M processors
+apb_uart u_apb_uart_0 (
+    .PCLK        ( PCLK           ),     // Peripheral clock
+    .PRESETn     ( PRESETn        ),  // Reset
+    .PSEL        ( uart0_psel     ),     // APB interface inputs
+    .PADDR       ( PADDR[7:2]     ), // 按字访问寄存器
+    .PENABLE     ( PENABLE        ),
+    .PWRITE      ( PWRITE         ),
+    .PWDATA      ( PWDATA         ),
+    .PRDATA      ( uart0_prdata   ),   // APB interface outputs
+    .PREADY      ( uart0_pready   ), // readyout
+    .PSLVERR     ( uart0_pslverr  ),
+    .RXD         ( uart0_rxd      ),      // Receive data
+    .TXD         ( uart0_txd      ),      // Transmit data
+    .TXEN        ( uart0_txen     ),     // Transmit Enabled
+    .BAUDTICK    ( uart0_baudtick ),   // Baud rate x16 tick output (for testing)
+    .TXINT       ( uart0_txint    ),       // Transmit Interrupt
+    .RXINT       ( uart0_rxint    )       // Receive  Interrupt
 );
 
-
+// Taken from System-on-Chip Design with Arm Cortex-M processors
 apb_gpio#(
     .PortWidth ( 8 )
 ) u_apb_gpioA(
-    .PCLK    ( PCLK    ),
-    .PRESETn ( PRESETn ),
+    .PCLK    ( PCLK          ),
+    .PRESETn ( PRESETn       ),
     .PSEL    ( gpioA_psel    ),
-    .PADDR   ( PADDR[7:2]   ),
-    .PENABLE ( PENABLE ),
-    .PWRITE  ( PWRITE  ),
-    .PWDATA  ( PWDATA  ),
+    .PADDR   ( PADDR[7:2]    ),
+    .PENABLE ( PENABLE       ),
+    .PWRITE  ( PWRITE        ),
+    .PWDATA  ( PWDATA        ),
     .PRDATA  ( gpioA_prdata  ),
     .PREADY  ( gpioA_pready  ),
     .PSLVERR ( gpioA_pslverr ),
-    .PORTIN  ( gpioA_in  ),
-    .PORTOUT ( gpioA_out ),
-    .PORTEN  ( gpioA_outEn  ),
-    .GPIOINT ( gpioA_int ),
-    .COMBINT  ( gpioA_combint  )
+    .PORTIN  ( gpioA_in      ),
+    .PORTOUT ( gpioA_out     ),
+    .PORTEN  ( gpioA_outEn   ),
+    .GPIOINT ( gpioA_int     ),
+    .COMBINT ( gpioA_combint )
 );
-
+// combine gpio inputs and outputs to inout ports
 generate
      genvar i;
      for(i=0;i<8;i=i+1)
@@ -232,21 +212,21 @@ generate
 apb_gpio#(
     .PortWidth ( 8 )
 )u_apb_gpioB(
-    .PCLK    ( PCLK    ),
-    .PRESETn ( PRESETn ),
+    .PCLK    ( PCLK          ),
+    .PRESETn ( PRESETn       ),
     .PSEL    ( gpioB_psel    ),
-    .PADDR   ( PADDR[7:2]   ),
-    .PENABLE ( PENABLE ),
-    .PWRITE  ( PWRITE  ),
-    .PWDATA  ( PWDATA  ),
+    .PADDR   ( PADDR[7:2]    ),
+    .PENABLE ( PENABLE       ),
+    .PWRITE  ( PWRITE        ),
+    .PWDATA  ( PWDATA        ),
     .PRDATA  ( gpioB_prdata  ),
     .PREADY  ( gpioB_pready  ),
     .PSLVERR ( gpioB_pslverr ),
-    .PORTIN  ( gpioB_in  ),
-    .PORTOUT ( gpioB_out ),
-    .PORTEN  ( gpioB_outEn  ),
-    .GPIOINT ( gpioB_int ),
-    .COMBINT  ( gpioB_combint  )
+    .PORTIN  ( gpioB_in      ),
+    .PORTOUT ( gpioB_out     ),
+    .PORTEN  ( gpioB_outEn   ),
+    .GPIOINT ( gpioB_int     ),
+    .COMBINT ( gpioB_combint )
 );
 
 generate

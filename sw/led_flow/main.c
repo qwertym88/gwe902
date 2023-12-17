@@ -1,7 +1,6 @@
 #include "main.h"
 
-// #define bauddiv 804
-const uint32_t delay_500ms = 675000;
+const uint32_t delay = 675000;
 uint32_t cnt;
 
 void gpioInit()
@@ -22,7 +21,7 @@ int main()
         for (int i = 0; i < 4; i++)
         {
             GPIOA->DATAOUT = (1 << i);
-            cnt = delay_500ms;
+            cnt = delay;
             while (cnt--)
                 ;
         }
