@@ -18,12 +18,8 @@ module apb_subsystem (
     input  wire           uart0_rxd,
     output wire           uart0_txd,
     output wire           uart0_txen,
-    // Timer
-    input  wire           timer0_extin,
     // Interrupt outputs
     output wire   [31:0]  apb_interrupt,
-    // output wire           watchdog_interrupt,
-    // output wire           watchdog_reset,
     // GPIO
     inout wire [7:0] gpio_portA,
     inout wire [7:0] gpio_portB
@@ -32,20 +28,23 @@ module apb_subsystem (
 // pclk与hclk同相不同频
 wire PCLK;
 wire PENABLE; // apb设备使能
-CLKDIV clk_div4 (
-  .HCLKIN(HCLK),
-  .RESETN(RESETn),
-  .CALIB(1'b1),
-  .CLKOUT(PCLK)
-);
-defparam clk_div4.DIV_MODE="4";
-// assign PCLK = HCLK;
+// CLKDIV clk_div4 (
+//   .HCLKIN(HCLK),
+//   .RESETN(RESETn),
+//   .CALIB(1'b1),
+//   .CLKOUT(PCLK)
+// );
+// defparam clk_div4.DIV_MODE="4";
+assign PCLK = HCLK;
 
-wire PCLKEN;
-wire PRESETn;
-wire [11:0] PADDR;
-wire PWRITE;
+wire        PCLKEN;
+wire        PRESETn;
+wire [15:0] PADDR;
+wire        PWRITE;
 wire [31:0] PWDATA;
+wire        PREADY;
+wire [31:0] PRDATA;
+wire        PSLVERR;
 assign PCLKEN = 1'b1;
 assign PRESETn = RESETn;
 
@@ -53,131 +52,151 @@ assign PRESETn = RESETn;
 wire PCLKG;
 wire APBACTIVE;
 
-wire gpioA_psel;
-wire gpioA_pready;
+wire        gpioA_psel;
 wire [31:0] gpioA_prdata;
-wire gpioA_pslverr;
+wire        gpioA_pready;
+wire        gpioA_pslverr;
 wire [7:0] gpioA_in;
 wire [7:0] gpioA_out;
 wire [7:0] gpioA_outEn;
 wire [7:0] gpioA_int;
 wire gpioA_combint;
 
-wire gpioB_psel;
-wire gpioB_pready;
+wire        gpioB_psel;
 wire [31:0] gpioB_prdata;
-wire gpioB_pslverr;
+wire        gpioB_pready;
+wire        gpioB_pslverr;
 wire [7:0] gpioB_in;
 wire [7:0] gpioB_out;
 wire [7:0] gpioB_outEn;
 wire [7:0] gpioB_int;
 wire gpioB_combint;
 
+wire        uart0_psel;
+wire [31:0] uart0_prdata;
+wire        uart0_pready;
+wire        uart0_pslverr;
+wire uart0_txint;
+wire uart0_rxint;
+// wire uart0_txovrint;
+// wire uart0_rxovrint;
+// wire uart0_overflow_int;
+// wire uart0_combined_int;
+
 wire [31:0]  apbsubsys_interrupt;
-
-/*
-apbsubsys_interrupt[31:0] = {
-    {16{1'b0}},                       // 16-31 (AHB GPIO #0 individual interrupt)
-    1'b0,                             // 15 (DMA interrupt)
-    i_uart2_overflow_int,             // 14
-    i_uart1_overflow_int,             // 13
-    i_uart0_overflow_int,             // 12
-    1'b0,                             // 11
-    i_dualtimer2_int,                 // 10
-    i_timer1_int,                     // 9
-    i_timer0_int,                     // 8
-    1'b0,                             // 7 (GPIO #1 combined interrupt)
-    1'b0,                             // 6 (GPIO #0 combined interrupt)
-    i_uart2_txint,                    // 5
-    i_uart2_rxint,                    // 4
-    i_uart1_txint,                    // 3
-    i_uart1_rxint,                    // 2
-    i_uart0_txint,                    // 1
-    i_uart0_rxint};                   // 0
-*/
-
 assign apb_interrupt[31:0] = {
-    apbsubsys_interrupt[5:0],
-    gpioA_combint,
-    gpioB_combint,
-    apbsubsys_interrupt[15:8],
+    {20{1'b0}}, 
+    gpioB_int[7:0],
     gpioA_int[7:0],
-    gpioB_int[7:0]
+    gpioB_combint,
+    gpioA_combint,
+    // uart0_overflow_int,
+    uart0_txint,
+    uart0_rxint
 };
 
-// assign apb_interrupt[31:0] = 32'h0;
-
-// assign apbsubsys_interrupt[6] = gpioA_combint;
-// assign apbsubsys_interrupt[7] = gpioB_combint;
-// assign apbsubsys_interrupt[23:16] = gpioA_int;
-// assign apbsubsys_interrupt[31:24] = gpioB_int;
-
-cmsdk_apb_subsystem#(
-    .APB_EXT_PORT12_ENABLE      ( 1 ),
-    .APB_EXT_PORT13_ENABLE      ( 1 ),
-    .APB_EXT_PORT14_ENABLE      ( 0 ),
-    .APB_EXT_PORT15_ENABLE      ( 0 ),
-    .INCLUDE_APB_TEST_SLAVE     ( 0 ),
-    .INCLUDE_APB_TIMER0         ( 1 ),
-    .INCLUDE_APB_TIMER1         ( 0 ),
-    .INCLUDE_APB_DUALTIMER0     ( 0 ),
-    .INCLUDE_APB_UART0          ( 1 ),
-    .INCLUDE_APB_UART1          ( 0 ),
-    .INCLUDE_APB_UART2          ( 0 ),
-    .INCLUDE_APB_WATCHDOG       ( 0 ),
-    .BE                         ( 0 )
-) u_cmsdk_apb_subsystem(
-    .HCLK                 ( HCLK                ),
-    .HRESETn              ( RESETn             ),
-    .HSEL                 ( HSEL                ),
-    .HADDR                ( HADDR               ),
-    .HTRANS               ( HTRANS              ),
-    .HWRITE               ( HWRITE              ),
-    .HSIZE                ( HSIZE               ),
-    .HPROT                ( HPROT               ),
-    .HREADY               ( HREADY              ),
-    .HWDATA               ( HWDATA              ),
-    .HREADYOUT            ( HREADYOUT           ),
-    .HRDATA               ( HRDATA              ),
-    .HRESP                ( HRESP               ),
-    .PCLK                 ( PCLK                ),
-    .PCLKG                ( PCLKG               ),
-    .PCLKEN               ( PCLKEN              ),
-    .PRESETn              ( PRESETn             ),
-    .PADDR                ( PADDR               ),
-    .PWRITE               ( PWRITE              ),
-    .PWDATA               ( PWDATA              ),
-    .PENABLE              ( PENABLE             ),
-    .ext12_psel           ( gpioA_psel          ),
-    .ext12_prdata         ( gpioA_prdata        ),
-    .ext12_pready         ( gpioA_pready        ),
-    .ext12_pslverr        ( gpioA_pslverr       ),
-    .ext13_psel           ( gpioB_psel          ),
-    .ext13_prdata         ( gpioB_prdata        ),
-    .ext13_pready         ( gpioB_pready        ),
-    .ext13_pslverr        ( gpioB_pslverr       ),
-    // .ext14_psel           ( gpioB_psel          ),
-    .ext14_prdata         ( 32'h00000000        ),
-    .ext14_pready         ( 1'b1                ),
-    .ext14_pslverr        ( 1'b0                ),
-    // .ext15_psel           ( gpioB_psel          ),
-    .ext15_prdata         ( 32'h00000000        ),
-    .ext15_pready         ( 1'b1                ),
-    .ext15_pslverr        ( 1'b0                ),
-    .APBACTIVE            ( APBACTIVE           ),
-    .uart0_rxd            ( uart0_rxd           ),
-    .uart0_txd            ( uart0_txd           ),
-    .uart0_txen           ( uart0_txen          ),
-    .timer0_extin         ( timer0_extin        ),
-    .apbsubsys_interrupt  ( apbsubsys_interrupt )
-    // .watchdog_interrupt   ( watchdog_interrupt  ),
-    // .watchdog_reset       ( watchdog_reset      )
+// AHB to APB bus bridge
+cmsdk_ahb_to_apb#(
+    .ADDRWIDTH      (16),
+    .REGISTER_RDATA (1),
+    .REGISTER_WDATA (0)
+)u_ahb_to_apb(
+    // AHB side
+    .HCLK     (HCLK),
+    .HRESETn  (RESETn),
+    .HSEL     (HSEL),
+    .PCLKEN   (1'b1),
+    .HADDR    (HADDR[15:0]),
+    .HTRANS   (HTRANS),
+    .HSIZE    (HSIZE),
+    .HPROT    (HPROT),
+    .HWRITE   (HWRITE),
+    .HREADY   (HREADY),
+    .HWDATA   (HWDATA),
+    .HREADYOUT(HREADYOUT), // AHB Outputs
+    .HRDATA   (HRDATA),
+    .HRESP    (HRESP),
+    // apb side
+    .PENABLE  (PENABLE),
+    .PADDR    (PADDR[15:0]),
+    .PWRITE   (PWRITE),
+    // .PSTRB    (i_pstrb),
+    // .PPROT    (i_pprot),
+    // .PSEL     (1'b1), // slave_mux等的psel输入
+    .PWDATA   (PWDATA),
+    .PRDATA   (PRDATA),
+    .PREADY   (PREADY),
+    .PSLVERR  (PSLVERR),
+    // useless
+    .APBACTIVE(APBACTIVE)
 );
 
 // The AHB to APB bridge generates APBACTIVE signal. It enables you to handle clock gating for gated APB 
 // bus clock, PCLKG in the example system.
 // When there is no APB transfer, you can stop the gated APB bus clock to reduce power.
 assign PCLKG = 1'b1;
+
+// APB slave multiplexer
+cmsdk_apb_slave_mux#( 
+    // Parameter to determine which ports are used
+    .PORT0_ENABLE   ( 1 ), // uart0
+    .PORT1_ENABLE   ( 1 ), // gpioa
+    .PORT2_ENABLE   ( 1 ), // gpiob
+    .PORT3_ENABLE   ( 0 ),
+    .PORT4_ENABLE   ( 0 ),
+    .PORT5_ENABLE   ( 0 ),
+    .PORT6_ENABLE   ( 0 ),
+    .PORT7_ENABLE   ( 0 ),
+    .PORT8_ENABLE   ( 0 ),
+    .PORT9_ENABLE   ( 0 ),
+    .PORT10_ENABLE  ( 0 ),
+    .PORT11_ENABLE  ( 0 ),
+    .PORT12_ENABLE  ( 0 ),
+    .PORT13_ENABLE  ( 0 ),
+    .PORT14_ENABLE  ( 0 ),
+    .PORT15_ENABLE  ( 0 ) 
+)
+u_apb_slave_mux (
+    // Inputs
+    .DECODE4BIT        (PADDR[15:12]), // 高4位分成16个apb设备
+    .PSEL              (1'b1),
+    // PSEL (output) and return status & data (inputs) for each port
+    .PSEL0             (uart0_psel),
+    .PREADY0           (uart0_pready),
+    .PRDATA0           (uart0_prdata),
+    .PSLVERR0          (uart0_pslverr),
+    .PSEL1             (gpioA_psel),
+    .PREADY1           (gpioA_pready),
+    .PRDATA1           (gpioA_prdata),
+    .PSLVERR1          (gpioA_pslverr),
+    .PSEL2             (gpioB_psel),
+    .PREADY2           (gpioB_pready),
+    .PRDATA2           (gpioB_prdata),
+    .PSLVERR2          (gpioB_pslverr),
+    // Output
+    .PREADY            (PREADY),
+    .PRDATA            (PRDATA),
+    .PSLVERR           (PSLVERR)
+);
+
+apb_uart u_apb_uart_0 (
+    .PCLK        (PCLK),     // Peripheral clock
+    .PRESETn     (PRESETn),  // Reset
+    .PSEL        (uart0_psel),     // APB interface inputs
+    .PADDR       (PADDR[7:2]), // 按字访问寄存器
+    .PENABLE     (1'b1),
+    .PWRITE      (PWRITE),
+    .PWDATA      (PWDATA),
+    .PRDATA      (uart0_prdata),   // APB interface outputs
+    .PREADY      (uart0_pready), // readyout
+    .PSLVERR     (uart0_pslverr),
+    .RXD         (uart0_rxd),      // Receive data
+    .TXD         (uart0_txd),      // Transmit data
+    .TXEN        (uart0_txen),     // Transmit Enabled
+    .BAUDTICK    (),   // Baud rate x16 tick output (for testing)
+    .TXINT       (uart0_txint),       // Transmit Interrupt
+    .RXINT       (uart0_rxint)       // Receive  Interrupt
+);
 
 apb_gpio#(
     .PortWidth ( 8 )
@@ -186,7 +205,7 @@ apb_gpio#(
     .PRESETn ( RESETn ),
     .PSEL    ( gpioA_psel    ),
     .PADDR   ( PADDR[7:2]   ),
-    .PENABLE ( PENABLE ),
+    .PENABLE ( 1'b1 ),
     .PWRITE  ( PWRITE  ),
     .PWDATA  ( PWDATA  ),
     .PRDATA  ( gpioA_prdata  ),
@@ -216,7 +235,7 @@ apb_gpio#(
     .PRESETn ( PRESETn ),
     .PSEL    ( gpioB_psel    ),
     .PADDR   ( PADDR[7:2]   ),
-    .PENABLE ( PENABLE ),
+    .PENABLE ( 1'b1 ),
     .PWRITE  ( PWRITE  ),
     .PWDATA  ( PWDATA  ),
     .PRDATA  ( gpioB_prdata  ),
