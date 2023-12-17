@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./sw/led_flow/led_flow.elf",
+            "executable": "./sw/helloworld/helloworld.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

@@ -4,7 +4,7 @@
 #include "main.h"
 
 // in this case, pclk=hclk=sysclk=clk27m/4=6.75mHz
-// if set baud rate to 9600, bauddiv=6.75m/9600=703.125
+// if baud rate is 9600, bauddiv should be 6.75m/9600=703.125
 #define bauddiv 703
 
 void uart_init();
