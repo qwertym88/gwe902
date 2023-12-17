@@ -85,7 +85,7 @@ ahb_defslave x_ahb_defslave(
 
 apb_subsystem u_apb_subsystem(
     .HCLK                ( sys_clk             ),
-    .RESETn              ( sys_resetn          ),
+    .HRESETn              ( sys_resetn          ),
     .HSEL                ( hsel_s2             ),
     .HADDR               ( sysahb_haddr[15:0]  ),
     .HTRANS              ( sysahb_htrans       ),

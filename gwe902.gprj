@@ -13,6 +13,10 @@
         <File path="src/common/cpu_mem.v" type="file.verilog" enable="1"/>
         <File path="src/common/sysahb_periphs.v" type="file.verilog" enable="1"/>
         <File path="src/csmdk/cmsdk_ahb_to_apb.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_ahb_to_apb_async.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_ahb_to_apb_async_h.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_ahb_to_apb_async_p.v" type="file.verilog" enable="1"/>
+        <File path="src/csmdk/cmsdk_ahb_to_apb_async_syn.v" type="file.verilog" enable="1"/>
         <File path="src/csmdk/cmsdk_apb_dualtimers.v" type="file.verilog" enable="1"/>
         <File path="src/csmdk/cmsdk_apb_dualtimers_defs.v" type="file.verilog" enable="1"/>
         <File path="src/csmdk/cmsdk_apb_dualtimers_frc.v" type="file.verilog" enable="1"/>
