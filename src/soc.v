@@ -1,13 +1,13 @@
 module soc(
   input wire clk27m,
   input wire mcu_rst_signal,
-  // jtag
-  input wire jtag_tclk,
-  inout wire jtag_tms,
   // UART
   input  wire uart0_rxd,
   output wire uart0_txd,
   output wire uart0_txen,
+  // jtag
+  input wire jtag_tclk,
+  inout wire jtag_tms,
   // GPIO
   inout wire [7:0] gpio_portA,
   inout wire [7:0] gpio_portB
@@ -196,7 +196,6 @@ sysahb_periphs x_sysahb_periphs (
   .uart0_rxd           ( uart0_rxd           ),
   .uart0_txd           ( uart0_txd           ),
   .uart0_txen          ( uart0_txen          ),
-  .timer0_extin        ( sys_clk             ),
   .apb_interrupt       ( pad_vic_int_vld     ),
   .gpio_portA          ( gpio_portA          ),
   .gpio_portB          ( gpio_portB          )

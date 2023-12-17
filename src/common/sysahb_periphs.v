@@ -16,12 +16,8 @@ module sysahb_periphs (
   input  wire           uart0_rxd,
   output wire           uart0_txd,
   output wire           uart0_txen,
-  // Timer
-  input  wire           timer0_extin,
   // Interrupt outputs
   output wire   [31:0]  apb_interrupt,
-//   output wire           watchdog_interrupt,
-//   output wire           watchdog_reset,
   // GPIO
   inout wire [7:0] gpio_portA,
   inout wire [7:0] gpio_portB
@@ -100,10 +96,7 @@ apb_subsystem u_apb_subsystem(
     .uart0_rxd           ( uart0_rxd           ),
     .uart0_txd           ( uart0_txd           ),
     .uart0_txen          ( uart0_txen          ),
-    .timer0_extin        ( timer0_extin        ),
     .apb_interrupt       ( apb_interrupt       ),
-    // .watchdog_interrupt  ( watchdog_interrupt  ),
-    // .watchdog_reset      ( watchdog_reset      ),
     .gpio_portA          ( gpio_portA          ),
     .gpio_portB          ( gpio_portB          )
 );

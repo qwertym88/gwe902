@@ -8,7 +8,9 @@
         <File path="src/ahb_bus/ahb_slavemux.v" type="file.verilog" enable="1"/>
         <File path="src/ahb_periphs/AHBBlockRam.v" type="file.verilog" enable="1"/>
         <File path="src/ahb_periphs/ahb_defslave.v" type="file.verilog" enable="1"/>
+        <File path="src/apb_periphs/ahb_to_apb.v" type="file.verilog" enable="1"/>
         <File path="src/apb_periphs/apb_gpio.v" type="file.verilog" enable="1"/>
+        <File path="src/apb_periphs/apb_uart.v" type="file.verilog" enable="1"/>
         <File path="src/common/apb_subsystem.v" type="file.verilog" enable="1"/>
         <File path="src/common/cpu_mem.v" type="file.verilog" enable="1"/>
         <File path="src/common/sysahb_periphs.v" type="file.verilog" enable="1"/>

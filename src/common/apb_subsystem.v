@@ -18,12 +18,8 @@ module apb_subsystem (
     input  wire           uart0_rxd,
     output wire           uart0_txd,
     output wire           uart0_txen,
-    // Timer
-    input  wire           timer0_extin,
     // Interrupt outputs
     output wire   [31:0]  apb_interrupt,
-    // output wire           watchdog_interrupt,
-    // output wire           watchdog_reset,
     // GPIO
     inout wire [7:0] gpio_portA,
     inout wire [7:0] gpio_portB
@@ -71,55 +67,48 @@ wire uart0_rxovrint;
 wire uart0_overflow_int;
 wire uart0_combined_int;
 
-wire gpioA_psel;
-wire gpioA_pready;
+wire        gpioA_psel;
 wire [31:0] gpioA_prdata;
-wire gpioA_pslverr;
+wire        gpioA_pready;
+wire        gpioA_pslverr;
 wire [7:0] gpioA_in;
 wire [7:0] gpioA_out;
 wire [7:0] gpioA_outEn;
 wire [7:0] gpioA_int;
 wire gpioA_combint;
 
-wire gpioB_psel;
-wire gpioB_pready;
+wire        gpioB_psel;
 wire [31:0] gpioB_prdata;
-wire gpioB_pslverr;
+wire        gpioB_pready;
+wire        gpioB_pslverr;
 wire [7:0] gpioB_in;
 wire [7:0] gpioB_out;
 wire [7:0] gpioB_outEn;
 wire [7:0] gpioB_int;
 wire gpioB_combint;
 
+wire        uart0_psel;
+wire [31:0] uart0_prdata;
+wire        uart0_pready;
+wire        uart0_pslverr;
+wire uart0_txint;
+wire uart0_rxint;
+// wire uart0_txovrint;
+// wire uart0_rxovrint;
+// wire uart0_overflow_int;
+// wire uart0_combined_int;
+wire uart0_baudtick;
+wire uart0_rx;
+wire uart0_tx;
+
 wire [31:0]  apbsubsys_interrupt;
-
-/*
-apbsubsys_interrupt[31:0] = {
-    {16{1'b0}},                       // 16-31 (AHB GPIO #0 individual interrupt)
-    1'b0,                             // 15 (DMA interrupt)
-    i_uart2_overflow_int,             // 14
-    i_uart1_overflow_int,             // 13
-    i_uart0_overflow_int,             // 12
-    1'b0,                             // 11
-    i_dualtimer2_int,                 // 10
-    i_timer1_int,                     // 9
-    i_timer0_int,                     // 8
-    1'b0,                             // 7 (GPIO #1 combined interrupt)
-    1'b0,                             // 6 (GPIO #0 combined interrupt)
-    i_uart2_txint,                    // 5
-    i_uart2_rxint,                    // 4
-    i_uart1_txint,                    // 3
-    i_uart1_rxint,                    // 2
-    i_uart0_txint,                    // 1
-    i_uart0_rxint};                   // 0
-*/
-
 assign apb_interrupt[31:0] = {
     {20{1'b0}}, 
     gpioB_int[7:0],
     gpioA_int[7:0],
     gpioB_combint,
     gpioA_combint,
+    // uart0_overflow_int,
     uart0_txint,
     uart0_rxint
 };
