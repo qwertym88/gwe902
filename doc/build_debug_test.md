@@ -26,7 +26,7 @@ linux下可能会出现所有文字无法正常显示的问题，解决办法之
 
 ### ip核
 
-待研究
+从各处搜刮来的ip核都可以拼在一起，因此不必强求统一出处。gowin ide自带了部分ip核，其他的也可以从cmsdk或其他地方掏。
 
 ## T-Head DebugServer
 
@@ -88,7 +88,7 @@ MEM1(RWX)  : ORIGIN = 0x00000000,  LENGTH = 64K
 MEM2(RWX)  : ORIGIN = 0x20000000,  LENGTH = 32K
 /* name */  /* 权限 */  /* 起始地址 */   /* 长度 */
 }
-__kernel_stack = 0x20007ff8;  /* 0x20000000 + 32k */
+__kernel_stack = 0x20007ff8;  /* 0x20000000 + 32k，必须是严格准确的内存地址 */
 
 ENTRY(__start)
 
@@ -127,7 +127,7 @@ SECTIONS {
 }
 ```
 
-完全没想明白为什么要这样设计，尤其是`>MEM2 AT> MEM1`部分。如上所示，iahb里的ram有读写执行权限，本来就可以在ram里运行，为什么要装载到sysahb的ram里呢，还是说“因为大家（如stm31f1）是这样设计的，所以也这样做？”
+对于`>MEM2 AT> MEM1`部分，如上所示，iahb里的ram有读写执行权限，本来就可以在ram里运行，之所以要装载到sysahb的ram里呢，应该就是说“因为大家（如stm31f1）是这样设计的，所以也这样做”了。
 
 ### 启动文件
 
@@ -173,7 +173,7 @@ L_loop1_done:
   csrsi mstatus, 0x8
 # 主程序
 __to_main:
-  jal main
+  jal main  # 入口函数
 # 正常结束，在0x6000fff8位置写入0xFFF
   .global __exit
 __exit:

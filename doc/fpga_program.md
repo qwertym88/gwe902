@@ -330,6 +330,109 @@ ram(iahb) 和 ram(sysahb) 的更多信息参考[另一篇教程](./build_debug_t
 
 从SoC Design with Arm Cortex-M Processor书里抄的，随便找一个就行，都是一样的
 
+## apb总线
+
+### 概述
+
+大致和ahb相同，不过有几点设计规范：
+
+``` verilog
+module apb_subsystem (
+    input  wire   [15:0]  HADDR, // 一般apb空间为0x40000000到0x4000ffff，共16位地址
+);
+
+// pclk=hclk/4，此时需要异步桥
+wire PCLK;
+CLKDIV clk_div2 (
+  .HCLKIN(HCLK),
+  .RESETN(HRESETn),
+  .CALIB(1'b1),
+  .CLKOUT(PCLK)
+);
+defparam clk_div2.DIV_MODE="4";
+// 部分apb设备有PCLK和PCLKG两个时钟输入，在apb桥上有APBACTIVE信号用于指示将要访问apb设备
+// PCLKG通过该信号生成，达到节能的目的；不过实际效果有限，不如直接PCLKG=PCLK
+// wire PCLKG;
+// wire APBACTIVE;
+// assign PCLKG = APBACTIVE ? PCLK : 1'b0;
+
+// 中断信号按需配置
+wire [31:0]  apbsubsys_interrupt;
+assign apb_interrupt[31:0] = {
+    {20{1'b0}}, 
+    gpioB_int[7:0],
+    gpioA_int[7:0],
+    gpioB_combint,
+    gpioA_combint,
+    uart0_txint,
+    uart0_rxint
+};
+
+// async ahb to apb bridge
+cmsdk_ahb_to_apb_async#(
+    .ADDRWIDTH ( 16 ) // PADDR共16位
+)u_cmsdk_ahb_to_apb_async(
+);
+// 根据PADDR[15:12]划分16个设备，设备地址依次为0x40000000，0x40001000...
+// APB slave multiplexer
+cmsdk_apb_slave_mux u_apb_slave_mux (
+    // Inputs
+    .DECODE4BIT        ( PADDR[15:12] ),
+    .PSEL              ( PSEL         ),
+    .PSEL0             ( uart0_psel    ),
+    .PREADY0           ( uart0_pready  ),
+    .PRDATA0           ( uart0_prdata  ),
+    .PSLVERR0          ( uart0_pslverr ),
+    // Output
+    .PREADY            ( PREADY         ),
+    .PRDATA            ( PRDATA         ),
+    .PSLVERR           ( PSLVERR        )
+);
+
+// 操作外设本质是读写寄存器，一般apb寄存器均是4字节，故不接地址线低两位
+// PADDR最高有几位根据设计变化，最大[11:2]
+apb_gpio#(
+    .PortWidth ( 8 )
+) u_apb_gpioA(
+    .PADDR   ( PADDR[7:2]    ), 
+);
+
+endmodule
+```
+
+### ahb_to_apb异步桥
+
+这里选择直接拿cmsdk里面的cmsdk_ahb_to_apb_async用。其中还有一个cmsdk_ahb_to_apb的同步桥，该模块只支持pclk=hclk or hclk/2，这里为了通用性选了前者。
+
+![](../img/Snipaste_2023-12-17_23-43-41.png)
+
+### gpio
+
+gpio使用参考书里的代码。gpio需要将一对输入和输出绑成一个inout端口，需要用到叫三态门的东西。具体电路图和代码如下：
+
+![](../img/Snipaste_2023-12-17_23-51-17.png)
+
+``` verilog
+
+inout_gpio = out_en ? out : 1'bz; // 1'bz 高阻态
+in = inout_gpio;
+
+generate
+     genvar j;
+     for(j=0;j<8;j=j+1)
+         begin: gpiob
+             assign gpio_portA[j] = gpioA_outEn[j] ? gpioA_out[j] : 1'bz;
+             assign gpioA_in[j] = gpio_portA[j];
+         end
+ endgenerate
+```
+
+串口中断分为单个端口的中断int[7:0]和整体的中断combint，按照需要设置就行。
+
+### uart
+
+uart使用参考书里的代码。对于uart中bauddiv寄存器的值，需要根据pclk和目标波特率进行配置，bouddiv=plck/boud，差1差2不影响。例如实例中pclk=1.6875mHz，波特率9600时bauddiv=1.6875m/9600=176，实际上在±5范围内都是可以的。
+
 ## 复位控制
 
 总体设计参考下面这张图，不过改了不少。官方案例里的相关代码散落在各个不相关文件的各处角落，比较难找。下图中两个d触发器的作用是实现异步复位同步释放，使得复位信号的上升沿和时钟信号上升沿同步。代码样例见mcu_reset.v的注释。

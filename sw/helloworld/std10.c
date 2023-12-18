@@ -23,12 +23,22 @@ unsigned char uart_getc(void)
 
 void println(const char *str)
 {
-    int cnt = 0;
-    char c = *(str + cnt);
-    while (c != '\0')
+    while (*str != '\0')
     {
-        uart_putc(c);
-        cnt++;
-        c = *(str + cnt);
+        uart_putc(*str);
+        str++;
     }
+    // 未解之谜，以下代码是可以的
+    // int cnt = 0;
+    // while (*(str + cnt) != '\0')
+    // {
+    //     uart_putc(*(str + (cnt++)));
+    // }
+    // 但这个就不行，不知道为啥
+    // char c = *(str + cnt);
+    // while (c != '\0')
+    // {
+    //     uart_putc(c);
+    //     c = *(str + (++cnt));
+    // }
 }

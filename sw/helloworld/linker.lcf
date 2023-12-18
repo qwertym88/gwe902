@@ -43,7 +43,7 @@ SECTIONS {
         *(.eh_frame*)
           . = ALIGN(0x4);
         __data_end__ = .;
-    } >MEM2 AT> MEM1
+    } >MEM1
     .bss :
     {
       . = ALIGN(0x4);
@@ -52,5 +52,5 @@ SECTIONS {
          . = ALIGN(0x4);
         __bss_end__ = .;
           *.(COMMON)
-    } >MEM2
+    } >MEM1
 }
