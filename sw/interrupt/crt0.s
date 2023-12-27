@@ -226,8 +226,9 @@ Infinite_Loop:
     def_irq_handler TIM1_IRQHandler
     def_irq_handler TIM2_IRQHandler
     def_irq_handler TIM3_IRQHandler
-    def_irq_handler USART0_IRQHandler
-    def_irq_handler USART1_IRQHandler
+    def_irq_handler UART1_IRQHandler
     def_irq_handler GPIOA_IRQHandler
     def_irq_handler GPIOB_IRQHandler
+    def_irq_handler UART0_RX_IRQHandler
+    def_irq_handler UART0_TX_IRQHandler
 

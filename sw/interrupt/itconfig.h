@@ -6,6 +6,12 @@
 #define CLINT_BASE 0xE0000000
 #define CLIC_BASE 0xE0800000
 
+#define SOFT_RST_INT_ID 3
+#define SYSTICK_TIMER_INT_ID 7
+#define UART0_RX_INT_ID 16
+#define UART0_TX_INT_ID 17
+#define GPIOA_COMB_INT_ID 18
+
 /*
     clint（处理器核局部中断）主要职能是提供软件中断和计时器中断。
     软件中断：通过代码设置寄存器MSIP发起软件中断请求
@@ -29,9 +35,6 @@
 #define MSIP (CLINT_BASE + 0x0000UL)
 #define MTIMECMP (CLINT_BASE + 0x4000UL)
 #define MTIME (CLINT_BASE + 0xBFF8UL)
-
-#define SOFT_RST_INT_ID 3
-#define SYSTICK_TIMER_INT_ID 7
 
 /*
     clic（核内局部中断控制器）职能为对中断源进行采样，优先级仲裁和分发。CLIC仲裁来源包括处理器各个模式下触发的中断。
@@ -92,7 +95,7 @@
 
 typedef struct
 {
-    __IO uint8_t IP;
+    __IO uint8_t IP; // R/Wc
     __IO uint8_t IE;
     __IO uint8_t ATTR;
     __IO uint8_t CTRL;
