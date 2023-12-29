@@ -102,6 +102,7 @@ typedef struct
 } INTCONFIG_TypeDef;
 
 // 高三位有效，相当于以 0 2 4 6 8 a c e 开头判断优先级，0永远不会执行
+// nbits=2时实际只有PRIORITY_LOW PRIORITY_NORM PRIORITY_HIGH 三个
 typedef enum
 {
     PRIORITY_NONE = 0x0,

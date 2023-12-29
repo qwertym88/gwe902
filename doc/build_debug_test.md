@@ -129,6 +129,8 @@ SECTIONS {
 
 对于`>MEM2 AT> MEM1`部分，如上所示，iahb里的ram有读写执行权限，本来就可以在ram里运行，之所以要装载到sysahb的ram里呢，应该就是说“因为大家（如stm31f1）是这样设计的，所以也这样做”了。
 
+__kernel_stack的值即自己设置的ram最大所到的地址值，不需要包括外设或者紧耦合ip的地址范围。
+
 ### 启动文件
 
 待深入研究
@@ -157,7 +159,7 @@ L_loop0_done:
    li x5, 0
    sub x4, x4, x3
    beqz x4, L_loop1_done
-# 将ram后面的.bbs等段全部置0
+# 将ram后面的.bbs等段全部置0。可以理解为malloc分配的地址等
 L_loop1:
    sw x5, 0(x3)
    addi x3, x3, 0x4
@@ -174,7 +176,7 @@ L_loop1_done:
 # 主程序
 __to_main:
   jal main  # 入口函数
-# 正常结束，在0x6000fff8位置写入0xFFF
+# 正常结束，在0x6000fff8位置写入0xFFF，实际没啥用，原来的代码就这样懒得改了
   .global __exit
 __exit:
   fence.i
@@ -184,7 +186,7 @@ __exit:
   slli  x3, x3,0x4
   addi  x3, x3, 0xf #0xFFF
   sw	x3, 0(x4)
-# 异常，在0x6000fff8位置写入0xEEE
+# 异常，在0x6000fff8位置写入0xEEE，实际没啥用
   .global __fail
 __fail:
   fence.i
@@ -200,7 +202,7 @@ trap_handler:
   j __synchronous_exception
   .align 2  
   j __fail
- # 发生同步异常
+ # 发生同步异常，一般是系统时钟或者调试器时钟的问题，检查这两个就行
 __synchronous_exception:
   sw   x13,-4(x2)
   sw   x14,-8(x2)
@@ -221,17 +223,109 @@ __synchronous_exception:
   .global vector_table
   .align  6
 # 中断向量表
-vector_table:	#totally 256 entries
+vector_table:	# 共256，实际只有64，前16为clint
 	.rept   256
-	.long   __dummy
+	.long   __dummy # 中断处理函数，直接跳转__fail
 	.endr
+
   .global __dummy
 __dummy:  
   j __fail
-  
   .data
   .long 0
 
 ```
 
-完全没想明白如何判断程序是正常结束还是异常终止，在特定位置写的数据怎么才能用上？中断向量表是个什么原理，中断如何产生？
+### 中断
+
+代码相关的细节可以看interrupt/itconfig.h里面的注释，结合e902用户手册8 9章内容应该容易理解。这里主要讲一下总体构建思路。
+
+e902核pad_clic_int_vld[64:0]与中断向量表自16号起一一对应，前0-15则是clint产生的中断，这也就是集成手册所说的bit[i]对应中断号为16+i。当中断号所对应的中断源产生中断信号时，会根据中断向量表调用号码对应的中断处理函数。该中断信号可以设置成电平、上升下降沿触发，可以设置响应方式为矢量或非矢量中断。需要注意，这里的触发方式指的是中断信号的行为，而不是该信号是如何产生的。样例程序中按键gpio中断检测下降沿，产生的中断信号是从0到1的上升沿，因此clic应该检测上升沿。
+
+区别于ARM架构，riscv规定异常和中断机制并没有硬件自动保存和恢复上下文的操作，软件需要自主保存并恢复上下文。具体来讲，中断程序入口必须对通用寄存器压栈保存，结束时恢复。
+
+> 目前这里有点小问题。当在中断处理函数中设置断点，并在到达该断点后直接退出调试程序，通用寄存器没有正常恢复，clic不知道哪里就有问题了，此后中断都无法正常触发。虽然实际调试过程中稍微注意一点就能避免，但终究还是好麻烦。不知道是原本就该这样还是哪里还需要改。
+
+实际编程中可以按照无剑100里面翻出来的这份代码写，代码不是太懂，反正能用就行：
+
+``` verilog
+.global IRQHandler_Wrap
+  .weak   IRQHandler_Wrap
+IRQHandler_Wrap:
+  /* 开辟栈空间保存mcause和mepc */
+  addi    sp, sp, -48
+  sw      t0, 4(sp)
+  sw      t1, 8(sp)
+  csrr    t0, mepc
+  csrr    t1, mcause
+  sw      t1, 40(sp)
+  sw      t0, 44(sp)
+  /* 开启全局中断，实现中断嵌套 */
+  csrs    mstatus, 8
+  sw      ra, 0(sp)
+  sw      t2, 12(sp)
+  sw      a0, 16(sp)
+  sw      a1, 20(sp)
+  sw      a2, 24(sp)
+  sw      a3, 28(sp)
+  sw      a4, 32(sp)
+  sw      a5, 36(sp)
+/* 获取中断号，跳转到g_irqvector[i]对应的函数 */
+  andi    t1, t1, 0x3FF
+  slli    t1, t1, 2
+  la      t0, g_irqvector
+  add     t0, t0, t1
+  lw      t2, (t0)
+  jalr    t2
+  /* 关闭全局中断 */
+  csrc    mstatus, 8
+  /* 清除clic中断请求位，防止重复响应电平中断 */
+  lw      a1, 40(sp)
+  andi    a0, a1, 0x3FF
+  /* clear pending */
+  li      a2, 0xE000E100
+  add     a2, a2, a0
+  lb      a3, 0(a2)
+  li      a4, 1
+  not     a4, a4
+  and     a5, a4, a3
+  sb      a5, 0(a2)
+
+  /* Enable interrupts when returning from the handler */
+  li      t0, 0x1880
+  csrs    mstatus, t0
+  csrw    mcause, a1
+  lw      t0, 44(sp)
+  csrw    mepc, t0
+  lw      ra, 0(sp)
+  lw      t0, 4(sp)
+  lw      t1, 8(sp)
+  lw      t2, 12(sp)
+  lw      a0, 16(sp)
+  lw      a1, 20(sp)
+  lw      a2, 24(sp)
+  lw      a3, 28(sp)
+  lw      a4, 32(sp)
+  lw      a5, 36(sp)
+
+  addi    sp, sp, 48
+  mret
+```
+
+g_irqvector即向量表对应的中断函数入口，自己设成啥都行。Default_IRQHandler在crt0.s中，定义为一个死循环。为方便后续代码设计，CORET_IRQHandler等默认指向Default_IRQHandler。
+
+``` C
+// 初始化中断向量表每个id对应的函数入口。
+void irq_vectors_init(void)
+{
+    for (int i = 0; i < 64; i++)
+    {
+        g_irqvector[i] = Default_IRQHandler;
+    }
+
+    g_irqvector[SYSTICK_TIMER_INT_ID] = CORET_IRQHandler;
+    g_irqvector[UART0_RX_INT_ID] = UART0_RX_IRQHandler;
+    g_irqvector[UART0_TX_INT_ID] = UART0_TX_IRQHandler;
+    g_irqvector[GPIOA_COMB_INT_ID] = GPIOA_IRQHandler;
+}
+```

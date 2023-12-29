@@ -50,7 +50,8 @@ void disableInt(uint8_t id)
 
 void initInt(void)
 {
-    *(uint32_t *)CLICCFG = 0x7;  // nlbits=3
-    *(uint32_t *)MINTTHRESH = 0; // threshold=0
+    // clic设置
+    *(uint32_t *)CLICCFG = 0x7;  // 中断优先级位数nlbits=3，支持7个优先级
+    *(uint32_t *)MINTTHRESH = 0; // 优先级阈值threshold=0，低于阈值不会响应
     irq_vectors_init();
 }

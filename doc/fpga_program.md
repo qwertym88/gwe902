@@ -25,6 +25,7 @@ e902核提供的接口如上所示。部分比较简单的就在这个章节内�
 
 - pad_had_jtg_tclk： jtag时钟频率必须小于 pll_core_cpuclk / 2
 - 外部系统时钟（如ahb总线的）：与 pll_core_cpuclk 同频同相（也就是共用一个）
+- pad_cpu_sys_cnt：需根据时钟计算systick值作为输入，用于中断系统中clint 7号timer中断
 
 ### dft系统集成
 
@@ -46,6 +47,7 @@ e902核提供的接口如上所示。部分比较简单的就在这个章节内�
 关联：
 
 - 低功耗模式：pad_sysio_dbgrq_b 唤醒，had_pad_jdb_pm 指示系统状态
+- pad_cpu_ext_int_b：直接连接到中断系统中clint 11号外部中断，为中断源
 
 ### CPU运行观测信号
 
@@ -94,6 +96,8 @@ e902核提供的接口如上所示。部分比较简单的就在这个章节内�
 参照集成手册，cpu产生访问请求时，会由总线矩阵单元根据 haddr 抉择具体访问的是哪条总线。其中，指令和数据由pad_bmu_iahbl_mask区分，TCIP访问会在核内处理。一般而言，存指令挂在指令ahb上，数据的ram挂在系统ahb上，以实现取指和取数据可以同时执行。为了区分指令请求和数据请求（即总线矩阵判断对某个地址的请求是指令请求还是数据、走哪条总线），需要定义指令地址空间，地址范围内的请求都视为指令请求，走指令总线。
 
 指令地址空间的大小并没有严格划分。比如我在指令总线挂一个512k的ram（IMEM_WIDTH=15，2^15=64kB），指令地址空间设置成512M也可以（e00h对应512M），意思是小于0x00200000地址的请求都会指向指令总线。需要注意的只有，指令地址空间的每一个地址都应该对应一个实际存在的地址，或者对应default slave产生错误。比如一个64k的rom只接低15位地址线，这样0x7000的访存就会被当成0x0的访存来响应。
+
+紧耦合IP地址为0xE0000000 - 0xEFFFFFFF，对该地址区间的访问会在核内处理。程序寄存器、clic系统等均在此。详见build_debug_test.md#ld文件
 
 ### 挂载简单设备到总线
 
@@ -516,7 +520,53 @@ openE902 x_e902 (
 
 ## 中断系统 
 
-待研究
+主要参考[无剑100mooc教程](https://www.icourse163.org/learn/SWJTU-1207492806?tid=1470116659#/learn/content?type=detail&id=1253638074&cid=1284287465)和e902集成手册设计
+
+### clint 和 clic
+
+![](../img/Snipaste_2023-12-27_22-31-39.png)
+![](../img/Snipaste_2023-12-27_22-32-01.png)
+
+e902中，clic低16位不可配置，为clint保留接口。其中仅3 7 11号有效。
+
+用户可配置的clic从16号起，opene902可配置其中64个。中断优先级位数最大为3，即支持7个等级的中断。
+
+### clint设置
+
+- 3号软件中断：代码通过写对应clint寄存器MSIP(0xE0000000)产生
+- 7号systick计时器中断：soc外部需利用系统时钟sysclk实现一个计时器输入到pad_cpu_sys_cnt。代码写clint寄存器MTIMECMP并与该值进行比较，若小于该值则产生中断。
+- 11号外部中断：直接与外部相连，中断源为jtag调试接口中的pad_cpu_ext_int_b
+
+systick参考代码如下：
+
+``` verilog
+// 计时器
+always@(posedge sys_clk or negedge sys_resetn)
+begin
+  if(!sys_resetn)
+    pad_cpu_sys_cnt[63:0] <= 64'h0;
+  else
+    pad_cpu_sys_cnt[63:0] <= pad_cpu_sys_cnt[63:0] + 64'h1;
+end
+```
+
+### 外设与clic连接
+
+``` verilog
+assign apb_interrupt[63:0] = {
+    {57{1'b0}}, 
+    gpioB_int[7:0],
+    gpioA_int[7:0],
+    gpioB_combint,
+    gpioA_combint,
+    uart0_txint,
+    uart0_rxint
+};
+...
+assign pad_clic_int_vld[63 : 0] = apbsubsys_interrupt[63 : 0];
+```
+
+大致如上，直接将用到的中断源连接到pad_clic_int_vld对应位就行。中断代码的编写详见build_debug_test.md#中断系统
 
 ## 低功耗
 
