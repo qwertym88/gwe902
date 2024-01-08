@@ -3,7 +3,7 @@
 <Project>
     <Template>FPGA</Template>
     <Version>5</Version>
-    <Device name="GW2A-55C" pn="GW2A-LV55PG484C8/I7">gw2a55c-005</Device>
+    <Device name="GW5A-25A" pn="GW5A-LV25MG121NES">gw5a25a-000</Device>
     <FileList>
         <File path="src/ahb_bus/ahb_slavemux.v" type="file.verilog" enable="1"/>
         <File path="src/ahb_periphs/AHBBlockRam.v" type="file.verilog" enable="1"/>

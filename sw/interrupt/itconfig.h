@@ -11,6 +11,7 @@
 #define UART0_RX_INT_ID 16
 #define UART0_TX_INT_ID 17
 #define GPIOA_COMB_INT_ID 18
+#define GPIOB_COMB_INT_ID 19
 
 /*
     clint（处理器核局部中断）主要职能是提供软件中断和计时器中断。

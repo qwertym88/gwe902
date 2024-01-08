@@ -4,7 +4,7 @@ void (*g_irqvector[64])(void);
 
 extern void Default_IRQHandler(void);
 extern void CORET_IRQHandler(void);
-extern void GPIOA_IRQHandler(void);
+extern void GPIOB_IRQHandler(void);
 extern void UART0_RX_IRQHandler(void);
 extern void UART0_TX_IRQHandler(void);
 
@@ -19,7 +19,7 @@ void irq_vectors_init(void)
     g_irqvector[SYSTICK_TIMER_INT_ID] = CORET_IRQHandler;
     g_irqvector[UART0_RX_INT_ID] = UART0_RX_IRQHandler;
     g_irqvector[UART0_TX_INT_ID] = UART0_TX_IRQHandler;
-    g_irqvector[GPIOA_COMB_INT_ID] = GPIOA_IRQHandler;
+    g_irqvector[GPIOB_COMB_INT_ID] = GPIOB_IRQHandler;
 }
 
 void setSoftRst(uint32_t value)
