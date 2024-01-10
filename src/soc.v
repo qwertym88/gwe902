@@ -58,13 +58,13 @@ wire watchdog_interrupt;
 wire watchdog_reset;
 // 时钟
 // wire sys_clk = clk50m;
-CLKDIV clk_div6 (
+CLKDIV clk_div5 (
   .HCLKIN(clk50m),
   .RESETN(sys_resetn),
   .CALIB(1'b1),
   .CLKOUT(sys_clk)
 );
-defparam clk_div6.DIV_MODE="6";
+defparam clk_div5.DIV_MODE="5";
 
 // 复位控制
 mcu_reset x_mcu_reset(

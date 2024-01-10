@@ -34,18 +34,20 @@ uint64_t getSystick(void)
 
 void enableInt(uint8_t id, uint8_t trigger, INTPRIORITY pri)
 {
-    INTCONFIG_TypeDef *config = CLICINT_I(id);
-    // config->IP = 1; // 电平模式下实际只读，边缘中断能自动清除
-    config->IE = 1;
-    config->ATTR = (trigger << 1) + 1;
-    config->CTRL = pri;
+    INTCONFIG_TypeDef config;
+    // config.IP = 1; // 电平模式下实际只读，边缘中断能自动清除
+    config.IE = 1;
+    config.ATTR = (trigger << 1) + 1;
+    config.CTRL = pri;
+    *(INTCONFIG_TypeDef *)CLICINT_I(id) = config;
 }
 
 void disableInt(uint8_t id)
 {
-    INTCONFIG_TypeDef *config = CLICINT_I(id);
-    config->IP = 0;
-    config->IE = 0;
+    INTCONFIG_TypeDef config;
+    config.IP = 0;
+    config.IE = 0;
+    *(INTCONFIG_TypeDef *)CLICINT_I(id) = config;
 }
 
 void initInt(void)

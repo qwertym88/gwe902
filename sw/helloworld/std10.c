@@ -2,7 +2,10 @@
 
 void uart_init()
 {
-    UART0->BAUDDIV = bauddiv;
+    // in this case, pclk=hclk/4=sysclk/4=clk50m/5/4=2.5mHz
+    // if baud rate is 9600, bauddiv should be around 2.5m/9600=260
+    // bauddiv in range [260-5, 260+5] is also ok for this example
+    UART0->BAUDDIV = 260;
     UART0->CTRL = 0b0011; // tx rx enable, interrupt disable
 }
 
