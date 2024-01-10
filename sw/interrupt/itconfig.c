@@ -39,7 +39,13 @@ void enableInt(uint8_t id, uint8_t trigger, INTPRIORITY pri)
     config.IE = 1;
     config.ATTR = (trigger << 1) + 1;
     config.CTRL = pri;
+    // 要像这样子一次性修改好，而不能逐个修改，否则产生同步错误
     *(INTCONFIG_TypeDef *)CLICINT_I(id) = config;
+    // 错误示范
+    // INTCONFIG_TypeDef *config = CLICINT_I(id);
+    // config->IE = 1;
+    // config->ATTR = (trigger << 1) + 1;
+    // config->CTRL = pri;
 }
 
 void disableInt(uint8_t id)

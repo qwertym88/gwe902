@@ -5,7 +5,7 @@ uint8_t led_status = 255;
 uint8_t timer_loop = 1; // 模拟中断嵌套，计时器中断里面的死循环
 uint8_t txbuffer[128];
 uint32_t txsize;
-uint8_t *rxbuffer;
+uint8_t rxbuffer[128];
 
 // ms delay base on systick
 void delay(uint64_t ms)
@@ -57,12 +57,6 @@ void uartTransmit_IT(const uint8_t *pdata, uint32_t size)
     }
     txsize = size;
     UART0->TXD = txbuffer[0]; // send first char
-}
-
-// readline
-void uartRecieve_IT(uint8_t *pdata)
-{
-    rxbuffer = pdata;
 }
 
 // 读取size个字节后调用cplt callback

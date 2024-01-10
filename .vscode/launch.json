@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./sw/helloworld/helloworld.elf",
+            "executable": "./sw/interrupt/interrupt.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
