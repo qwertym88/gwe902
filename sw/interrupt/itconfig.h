@@ -11,6 +11,7 @@
 #define UART0_RX_INT_ID 16
 #define UART0_TX_INT_ID 17
 #define GPIOA_COMB_INT_ID 18
+#define GPIOB_COMB_INT_ID 19
 
 /*
     clint（处理器核局部中断）主要职能是提供软件中断和计时器中断。
@@ -92,6 +93,8 @@
                         bit[2:1]: 中断触发方式，x0电平中断，01上升沿，11下降沿
     CTRL 中断属性寄存器 bit[7:5+nlbits]: 中断的优先级。其余位无论设何值最终都绑定为1
 */
+
+// 注意以下寄存器需要按32位位宽写入，也就是要一次性修改而不是一次只修改一个值
 
 typedef struct
 {

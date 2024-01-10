@@ -1,15 +1,16 @@
 #include "main.h"
 #include "itconfig.h"
 
-uint8_t led_status = 0;
+uint8_t led_status = 255;
+uint8_t timer_loop = 1; // 模拟中断嵌套，计时器中断里面的死循环
 uint8_t txbuffer[128];
 uint32_t txsize;
-uint8_t *rxbuffer;
+uint8_t rxbuffer[128];
 
 // ms delay base on systick
 void delay(uint64_t ms)
 {
-    uint64_t target = getSystick() + ms * 6750;
+    uint64_t target = getSystick() + ms * 10000;
     while (getSystick() < target)
         ;
 }
@@ -17,7 +18,7 @@ void delay(uint64_t ms)
 // ms timer
 void systickTimer(uint64_t delay)
 {
-    uint64_t target = getSystick() + delay * 6750; // 6.75mHz
+    uint64_t target = getSystick() + delay * 10000; // 6.75mHz
     *(uint64_t *)MTIMECMP = target;
     enableInt(SYSTICK_TIMER_INT_ID, 0, PRIORITY_LOW);
 }
@@ -25,20 +26,22 @@ void systickTimer(uint64_t delay)
 // gpio init
 void gpioInit(void)
 {
-    led_status = 0;
-    GPIOA->OE = 0b00001111; // 四个led
-    GPIOA->DATAOUT = 0;
-    GPIOA->INTTYPE = 0b00110000;
-    GPIOA->INTPOLARITY = 0b00110000; // 常态上拉，故下降沿触发gpio中断
-    GPIOA->INTSTATE = 0b11111111;
-    GPIOA->INTENABLE = 0b00110000; // 两个按钮
+    GPIOA->OE = 0b11111111; // 八个led
+    GPIOA->DATAOUT = led_status;
+    GPIOA->INTENABLE = 0; // 两个按钮
 
-    enableInt(GPIOA_COMB_INT_ID, 1, PRIORITY_HIGH); // gpio发送给clint的中断信号为上升沿
+    GPIOB->OE = 0;
+    GPIOB->INTENABLE = 0b00001111; // 四个按键
+    GPIOB->INTTYPE = 0b00001111;
+    GPIOB->INTPOLARITY = 0b00001111; // 下降沿触发
+    GPIOB->INTSTATE = 0b11111111;
+
+    enableInt(GPIOB_COMB_INT_ID, 1, PRIORITY_HIGH); // gpio发送给clint的中断信号为上升沿
 }
 
 void uartInit()
 {
-    UART0->BAUDDIV = 175; // 9600
+    UART0->BAUDDIV = 260; // 9600
     UART0->CTRL = 0b1111; // tx rx interrupt enable
 
     enableInt(UART0_RX_INT_ID, 1, PRIORITY_NORM); // clint的中断信号为上升沿
@@ -56,12 +59,6 @@ void uartTransmit_IT(const uint8_t *pdata, uint32_t size)
     UART0->TXD = txbuffer[0]; // send first char
 }
 
-// readline
-void uartRecieve_IT(uint8_t *pdata)
-{
-    rxbuffer = pdata;
-}
-
 // 读取size个字节后调用cplt callback
 void uartRxCpltCallback(uint8_t *pdata, uint32_t size)
 {
@@ -73,9 +70,15 @@ int main()
     initInt();
     uartInit();
     gpioInit();
-    systickTimer(5000);
+    systickTimer(10000);
     while (1)
-        ;
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            GPIOA->DATAOUT = ~(1 << i);
+            delay(1000);
+        }
+    }
     return 0;
 }
 
@@ -90,29 +93,31 @@ void CORET_IRQHandler(void)
     disableInt(SYSTICK_TIMER_INT_ID);
     *(uint64_t *)MTIMECMP = 0xffffffffffffffff; // 注意要重置MTIMECMP，否则一直触发中断
 
-    led_status ^= 1; // toggle led 1
-    GPIOA->DATAOUT = led_status;
-    delay(10000);    // 模拟中断嵌套，十秒内按下按钮灯灭掉
-    led_status ^= 1; // toggle led 1
-    GPIOA->DATAOUT = led_status;
+    while (timer_loop == 1)
+        ;
 }
 
-void GPIOA_IRQHandler(void)
+void GPIOB_IRQHandler(void)
 {
     int i;
     uint8_t port = 0;
     delay(100); // 按键去抖
     for (i = 0; i < 8; i++)
     {
-        if ((GPIOA->INTSTATE & (1 << i)) != 0)
+        if ((GPIOB->INTSTATE & (1 << i)) != 0)
         {
-            GPIOA->INTSTATE = 0b11111111; // 重置中断状态，应该不太可能两个端口同时触发吧
-            port = i;
+            GPIOB->INTSTATE = 0b11111111; // 重置中断状态，应该不太可能两个端口同时触发吧
+            port = i;                     // 具体是哪个触发的
             break;
         }
     }
-    led_status ^= 1; // toggle led 1
-    GPIOA->DATAOUT = led_status;
+    for (i = 0; i < 4; i++)
+    {
+        led_status = ~led_status; // toggle led
+        GPIOA->DATAOUT = led_status;
+        delay(500);
+    }
+    timer_loop = 0;
 }
 
 void UART0_RX_IRQHandler(void)

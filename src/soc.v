@@ -1,5 +1,5 @@
 module soc(
-  input wire clk27m,
+  input wire clk50m,
   input wire mcu_rst_signal,
   // UART
   input  wire uart0_rxd,
@@ -57,14 +57,14 @@ reg [63:0] pad_cpu_sys_cnt;
 wire watchdog_interrupt;
 wire watchdog_reset;
 // 时钟
-// wire sys_clk = clk27m;
-CLKDIV clk_div4 (
-  .HCLKIN(clk27m),
+// wire sys_clk = clk50m;
+CLKDIV clk_div5 (
+  .HCLKIN(clk50m),
   .RESETN(sys_resetn),
   .CALIB(1'b1),
   .CLKOUT(sys_clk)
 );
-defparam clk_div4.DIV_MODE="4";
+defparam clk_div5.DIV_MODE="5";
 
 // 复位控制
 mcu_reset x_mcu_reset(

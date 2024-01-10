@@ -4,7 +4,7 @@ void (*g_irqvector[64])(void);
 
 extern void Default_IRQHandler(void);
 extern void CORET_IRQHandler(void);
-extern void GPIOA_IRQHandler(void);
+extern void GPIOB_IRQHandler(void);
 extern void UART0_RX_IRQHandler(void);
 extern void UART0_TX_IRQHandler(void);
 
@@ -19,7 +19,7 @@ void irq_vectors_init(void)
     g_irqvector[SYSTICK_TIMER_INT_ID] = CORET_IRQHandler;
     g_irqvector[UART0_RX_INT_ID] = UART0_RX_IRQHandler;
     g_irqvector[UART0_TX_INT_ID] = UART0_TX_IRQHandler;
-    g_irqvector[GPIOA_COMB_INT_ID] = GPIOA_IRQHandler;
+    g_irqvector[GPIOB_COMB_INT_ID] = GPIOB_IRQHandler;
 }
 
 void setSoftRst(uint32_t value)
@@ -34,18 +34,26 @@ uint64_t getSystick(void)
 
 void enableInt(uint8_t id, uint8_t trigger, INTPRIORITY pri)
 {
-    INTCONFIG_TypeDef *config = CLICINT_I(id);
-    // config->IP = 1; // 电平模式下实际只读，边缘中断能自动清除
-    config->IE = 1;
-    config->ATTR = (trigger << 1) + 1;
-    config->CTRL = pri;
+    INTCONFIG_TypeDef config;
+    // config.IP = 1; // 电平模式下实际只读，边缘中断能自动清除
+    config.IE = 1;
+    config.ATTR = (trigger << 1) + 1;
+    config.CTRL = pri;
+    // 要像这样子一次性修改好，而不能逐个修改，否则产生同步错误
+    *(INTCONFIG_TypeDef *)CLICINT_I(id) = config;
+    // 错误示范
+    // INTCONFIG_TypeDef *config = CLICINT_I(id);
+    // config->IE = 1;
+    // config->ATTR = (trigger << 1) + 1;
+    // config->CTRL = pri;
 }
 
 void disableInt(uint8_t id)
 {
-    INTCONFIG_TypeDef *config = CLICINT_I(id);
-    config->IP = 0;
-    config->IE = 0;
+    INTCONFIG_TypeDef config;
+    config.IP = 0;
+    config.IE = 0;
+    *(INTCONFIG_TypeDef *)CLICINT_I(id) = config;
 }
 
 void initInt(void)
