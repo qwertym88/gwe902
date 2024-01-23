@@ -54,7 +54,7 @@ wire        PRESP;
 wire        PSLVERR;
 assign PRESETn = HRESETn;
 
-// uart0 0x1000
+// uart0 0x0000
 wire        uart0_psel;
 wire [31:0] uart0_prdata;
 wire        uart0_pready;
@@ -85,9 +85,20 @@ wire [7:0]  gpioB_outEn;
 wire [7:0]  gpioB_int;
 wire        gpioB_combint;
 
+// timer 0x3000
+wire        timer_psel;
+wire [31:0] timer_prdata;
+wire        timer_pready;
+wire        timer_pslverr;
+wire        timer_extin;
+wire        timer_int;
+
+assign timer_extin = 1'b0; // for pulse width measurement, 目前没用上
+
 wire [31:0]  apbsubsys_interrupt;
 assign apb_interrupt[31:0] = {
-    {20{1'b0}}, 
+    {19{1'b0}},
+    timer_int,
     gpioB_int[7:0],
     gpioA_int[7:0],
     gpioB_combint,
@@ -133,7 +144,8 @@ cmsdk_apb_slave_mux#(
     // Parameter to determine which ports are used
     .PORT0_ENABLE   ( 1 ), // uart0
     .PORT1_ENABLE   ( 1 ), // gpioa
-    .PORT2_ENABLE   ( 1 ) // gpiob
+    .PORT2_ENABLE   ( 1 ), // gpiob
+    .PORT3_ENABLE   ( 1 ) // timer
 )
 u_apb_slave_mux (
     // Inputs
@@ -152,6 +164,10 @@ u_apb_slave_mux (
     .PREADY2           ( gpioB_pready  ),
     .PRDATA2           ( gpioB_prdata  ),
     .PSLVERR2          ( gpioB_pslverr ),
+    .PSEL3             ( timer_psel    ),
+    .PREADY3           ( timer_pready  ),
+    .PRDATA3           ( timer_prdata  ),
+    .PSLVERR3          ( timer_pslverr ),
     // Output
     .PREADY            ( PREADY         ),
     .PRDATA            ( PRDATA         ),
@@ -238,5 +254,19 @@ generate
          end
  endgenerate
 
+apb_timer u_apb_timer(
+    .PCLK      ( PCLK          ),
+    .PRESETn   ( PRESETn       ),
+    .PSEL      ( timer_psel    ),
+    .PADDR     ( PADDR[7:2]    ),
+    .PENABLE   ( PENABLE       ),
+    .PWRITE    ( PWRITE        ),
+    .PWDATA    ( PWDATA        ),
+    .PRDATA    ( timer_prdata  ),
+    .PREADY    ( timer_pready  ),
+    .PSLVERR   ( timer_pslverr ),
+    .EXTIN     ( timer_extin   ),
+    .TIMERINT  ( timer_int     )
+);
     
 endmodule
