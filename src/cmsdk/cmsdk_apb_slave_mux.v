@@ -27,8 +27,8 @@ module cmsdk_apb_slave_mux #(
   // Parameters to enable/disable ports
   parameter PORT0_ENABLE  = 1,
   parameter PORT1_ENABLE  = 1,
-  parameter PORT2_ENABLE  = 1
-  // parameter PORT3_ENABLE  = 1,
+  parameter PORT2_ENABLE  = 1,
+  parameter PORT3_ENABLE  = 1
   // parameter PORT4_ENABLE  = 1,
   // parameter PORT5_ENABLE  = 1,
   // parameter PORT6_ENABLE  = 1,
@@ -64,10 +64,10 @@ module cmsdk_apb_slave_mux #(
   input  wire [31:0]  PRDATA2,
   input  wire         PSLVERR2,
 
-  // output wire         PSEL3,
-  // input  wire         PREADY3,
-  // input  wire [31:0]  PRDATA3,
-  // input  wire         PSLVERR3,
+  output wire         PSEL3,
+  input  wire         PREADY3,
+  input  wire [31:0]  PRDATA3,
+  input  wire         PSLVERR3,
 
   // output wire         PSEL4,
   // input  wire         PREADY4,
@@ -144,8 +144,7 @@ module cmsdk_apb_slave_mux #(
                       // (PORT9_ENABLE  == 1), (PORT8_ENABLE  == 1),
                       // (PORT7_ENABLE  == 1), (PORT6_ENABLE  == 1),
                       // (PORT5_ENABLE  == 1), (PORT4_ENABLE  == 1),
-                      // (PORT3_ENABLE  == 1), 
-                      (PORT2_ENABLE  == 1),
+                      (PORT3_ENABLE  == 1), (PORT2_ENABLE  == 1),
                       (PORT1_ENABLE  == 1), (PORT0_ENABLE  == 1) };
 
   wire [15:0] dec = { 
@@ -155,14 +154,13 @@ module cmsdk_apb_slave_mux #(
                       // (DECODE4BIT == 4'd9 ), (DECODE4BIT == 4'd8 ),
                       // (DECODE4BIT == 4'd7 ), (DECODE4BIT == 4'd6 ),
                       // (DECODE4BIT == 4'd5 ), (DECODE4BIT == 4'd4 ),
-                      // (DECODE4BIT == 4'd3 ), 
-                      (DECODE4BIT == 4'd2 ),
+                      (DECODE4BIT == 4'd3 ), (DECODE4BIT == 4'd2 ),
                       (DECODE4BIT == 4'd1 ), (DECODE4BIT == 4'd0 ) };
 
   assign PSEL0   = PSEL & dec[ 0] & en[ 0];
   assign PSEL1   = PSEL & dec[ 1] & en[ 1];
   assign PSEL2   = PSEL & dec[ 2] & en[ 2];
-  // assign PSEL3   = PSEL & dec[ 3] & en[ 3];
+  assign PSEL3   = PSEL & dec[ 3] & en[ 3];
   // assign PSEL4   = PSEL & dec[ 4] & en[ 4];
   // assign PSEL5   = PSEL & dec[ 5] & en[ 5];
   // assign PSEL6   = PSEL & dec[ 6] & en[ 6];
@@ -179,8 +177,8 @@ module cmsdk_apb_slave_mux #(
   assign PREADY  = ~PSEL |
                    ( dec[ 0]  & (PREADY0  | ~en[ 0]) ) |
                    ( dec[ 1]  & (PREADY1  | ~en[ 1]) ) |
-                   ( dec[ 2]  & (PREADY2  | ~en[ 2]) ) ;
-                  //  ( dec[ 3]  & (PREADY3  | ~en[ 3]) ) |
+                   ( dec[ 2]  & (PREADY2  | ~en[ 2]) ) |
+                   ( dec[ 3]  & (PREADY3  | ~en[ 3]) ) ;
                   //  ( dec[ 4]  & (PREADY4  | ~en[ 4]) ) |
                   //  ( dec[ 5]  & (PREADY5  | ~en[ 5]) ) |
                   //  ( dec[ 6]  & (PREADY6  | ~en[ 6]) ) |
@@ -196,8 +194,8 @@ module cmsdk_apb_slave_mux #(
 
   assign PSLVERR = ( PSEL0  & PSLVERR0  ) |
                    ( PSEL1  & PSLVERR1  ) |
-                   ( PSEL2  & PSLVERR2  ) ;
-                  //  ( PSEL3  & PSLVERR3  ) |
+                   ( PSEL2  & PSLVERR2  ) |
+                   ( PSEL3  & PSLVERR3  ) ;
                   //  ( PSEL4  & PSLVERR4  ) |
                   //  ( PSEL5  & PSLVERR5  ) |
                   //  ( PSEL6  & PSLVERR6  ) |
@@ -213,8 +211,8 @@ module cmsdk_apb_slave_mux #(
 
   assign PRDATA  = ( {32{PSEL0 }} & PRDATA0  ) |
                    ( {32{PSEL1 }} & PRDATA1  ) |
-                   ( {32{PSEL2 }} & PRDATA2  ) ;
-                  //  ( {32{PSEL3 }} & PRDATA3  ) |
+                   ( {32{PSEL2 }} & PRDATA2  ) |
+                   ( {32{PSEL3 }} & PRDATA3  ) ;
                   //  ( {32{PSEL4 }} & PRDATA4  ) |
                   //  ( {32{PSEL5 }} & PRDATA5  ) |
                   //  ( {32{PSEL6 }} & PRDATA6  ) |
